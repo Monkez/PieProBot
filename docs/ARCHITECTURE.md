@@ -25,6 +25,8 @@ Path: `frontend`
 
 Next.js admin console with pages for dashboard, chat, tasks, subagents, tools, providers, memory, self-update, logs, and config.
 
+The shared UI shell uses a soft-modern productivity dashboard aesthetic: sage background, thick rounded frame, floating top navigation, black pill sidebar, pastel cards, rounded widgets, and soft shadows.
+
 ### CLI
 
 Path: `piepro/cli.py`
@@ -58,4 +60,3 @@ The orchestrator must stay responsive. Heavy work is delegated to subagents via 
 - Add tools under `backend/app/tools/builtins` and `config/tools`.
 - Add memory backends under `backend/app/memory`.
 - Add frontend views under `frontend/app`.
-

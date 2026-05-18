@@ -76,6 +76,7 @@ Runtime files:
 - **Memory**: local memory manager with optional TencentDB Agent Memory external backend.
 - **Self-update**: safe stable/candidate flow simulation under `runtime/bodies`.
 - **Frontend**: Next.js operations console for dashboard, chat, tasks, subagents, tools, providers, memory, self-update, logs, and config.
+- **Design system**: soft-modern pastel productivity dashboard with a sage workspace, rounded cards, thick black accents, and playful premium workspace widgets.
 
 ## TencentDB Agent Memory
 
@@ -134,6 +135,7 @@ Start here:
 - [Memory](docs/MEMORY.md)
 - [Self-Update](docs/SELF_UPDATE.md)
 - [Development](docs/DEVELOPMENT.md)
+- [Design System](docs/DESIGN_SYSTEM.md)
 - [Self Knowledge](docs/SELF_KNOWLEDGE.md)
 - [Documentation Policy](docs/DOCS_POLICY.md)
 

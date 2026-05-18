@@ -9,7 +9,7 @@ export default async function TasksPage() {
       <Card title="Tasks">
         <div className="overflow-auto">
           <table className="w-full text-left text-sm">
-            <thead className="text-slate-400"><tr><th className="p-2">ID</th><th>Status</th><th>Subagents</th><th>Message</th></tr></thead>
+            <thead className="text-black/50"><tr><th className="p-2">ID</th><th>Status</th><th>Subagents</th><th>Message</th></tr></thead>
             <tbody>{tasks.map((task) => <tr key={task.id} className="border-t border-line"><td className="p-2">{task.id}</td><td>{task.status}</td><td>{task.assigned_subagents?.length || 0}</td><td>{task.message}</td></tr>)}</tbody>
           </table>
         </div>
@@ -17,4 +17,3 @@ export default async function TasksPage() {
     </div>
   );
 }
-

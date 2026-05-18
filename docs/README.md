@@ -9,6 +9,6 @@ Documents:
 - `MEMORY.md`: local memory and TencentDB Agent Memory integration.
 - `SELF_UPDATE.md`: stable/candidate update model.
 - `DEVELOPMENT.md`: test/build workflow and engineering rules.
+- `DESIGN_SYSTEM.md`: frontend visual identity and component rules.
 - `SELF_KNOWLEDGE.md`: facts PiePro should know about itself.
 - `DOCS_POLICY.md`: rules for keeping docs synchronized with code.
-

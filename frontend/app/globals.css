@@ -3,16 +3,42 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
   margin: 0;
-  background: #0b1120;
-  color: #e5e7eb;
+  background:
+    radial-gradient(circle at top left, rgba(255, 239, 184, 0.55), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(194, 225, 255, 0.5), transparent 30rem),
+    #dfece3;
+  color: #111111;
+  font-family: "Arial Rounded MT Bold", "Nunito", "Inter", ui-rounded, system-ui, sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: #ffd6df;
+  color: #111111;
+}
+
+.soft-shadow {
+  box-shadow: 0 16px 35px rgba(20, 29, 24, 0.08), inset 0 -1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.lifted-shadow {
+  box-shadow: 0 22px 45px rgba(12, 21, 16, 0.12), 0 6px 0 rgba(0, 0, 0, 0.04);
+}
+
+.playful-outline {
+  border: 2px solid rgba(17, 17, 17, 0.88);
+}

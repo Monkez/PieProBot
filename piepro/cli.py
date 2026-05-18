@@ -252,7 +252,7 @@ def status(args: argparse.Namespace) -> int:
         if url:
             health = "healthy" if http_ok(f"{url}/health") else "unhealthy"
             if name == "frontend":
-                health = "healthy" if http_ok(str(url)) else "unhealthy"
+                health = "healthy" if http_ok(str(url), timeout=6.0) else "unhealthy"
         if name == "backend" and url:
             overall_ok = overall_ok and health == "healthy"
         else:

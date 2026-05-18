@@ -9,12 +9,11 @@ export default async function ToolsPage() {
       <div className="grid gap-3 lg:grid-cols-2">
         {tools.map((tool) => (
           <Card key={tool.name} title={tool.name}>
-            <div className="text-sm text-slate-300">{tool.description}</div>
-            <div className="mt-3 text-xs text-slate-400">enabled={String(tool.enabled)} audit={tool.audit_level}</div>
+            <div className="text-sm font-bold text-black/65">{tool.description}</div>
+            <div className="mt-3 text-xs font-black text-black/45">enabled={String(tool.enabled)} audit={tool.audit_level}</div>
           </Card>
         ))}
       </div>
     </div>
   );
 }
-

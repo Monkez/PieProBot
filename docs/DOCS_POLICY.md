@@ -16,6 +16,7 @@ Update docs in the same change when modifying:
 - Self-update behavior.
 - Security controls.
 - Frontend workflows.
+- Frontend visual system or component style.
 - Operational troubleshooting.
 
 ## Source of Truth
@@ -26,6 +27,7 @@ Update docs in the same change when modifying:
 - `docs/MEMORY.md`: memory behavior.
 - `docs/SELF_UPDATE.md`: update safety model.
 - `docs/DEVELOPMENT.md`: engineering workflow.
+- `docs/DESIGN_SYSTEM.md`: frontend design language.
 - `docs/SELF_KNOWLEDGE.md`: concise bot self-model.
 
 ## Rule for Agents

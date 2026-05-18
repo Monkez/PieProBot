@@ -51,7 +51,7 @@ Use `piepro use <path>` to change the default project root without setting `PIEP
 
 ## Troubleshooting
 
-On Windows, a dev server can occasionally outlive or replace the wrapper PID stored in `runtime/piepro.pid.json`. `piepro status` treats a healthy HTTP endpoint as running even if the original PID is stale. Use `piepro restart --force` to refresh PID state.
+On Windows, a dev server can occasionally outlive or replace the wrapper PID stored in `runtime/piepro.pid.json`. `piepro status` treats a healthy HTTP endpoint as running even if the original PID is stale. Frontend status uses a longer HTTP timeout because Next.js dev pages may take a few seconds to respond after rebuilds. Use `piepro restart --force` to refresh PID state.
 
 If `piepro status` shows a stale process, run:
 

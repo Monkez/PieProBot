@@ -24,17 +24,16 @@ export default function ChatPage() {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-semibold">Chat Console</h1>
-        <p className="text-sm text-slate-400">Submit work to the orchestrator while subagents handle execution.</p>
+        <p className="text-sm font-bold text-black/50">Submit work to the orchestrator while subagents handle execution.</p>
       </div>
-      <textarea className="h-36 w-full rounded-md border border-line bg-slate-950 p-3 text-sm outline-none focus:border-accent" value={message} onChange={(event) => setMessage(event.target.value)} />
-      <button onClick={submit} disabled={busy} className="inline-flex h-10 items-center gap-2 rounded-md bg-accent px-4 text-sm font-medium text-slate-950 disabled:opacity-60">
+      <textarea className="soft-shadow h-36 w-full rounded-[24px] border border-black/10 bg-white/80 p-4 text-sm font-bold text-black outline-none focus:border-black" value={message} onChange={(event) => setMessage(event.target.value)} />
+      <button onClick={submit} disabled={busy} className="inline-flex h-12 items-center gap-2 rounded-full bg-black px-5 text-sm font-black text-white disabled:opacity-60">
         <Send size={16} />
         {busy ? "Running" : "Send"}
       </button>
       {result && (
-        <pre className="overflow-auto rounded-md border border-line bg-slate-950 p-4 text-sm text-slate-200">{JSON.stringify(result, null, 2)}</pre>
+        <pre className="soft-shadow overflow-auto rounded-[24px] border border-black/10 bg-white/80 p-4 text-sm font-bold text-black/70">{JSON.stringify(result, null, 2)}</pre>
       )}
     </div>
   );
 }
-

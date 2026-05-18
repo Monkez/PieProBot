@@ -14,12 +14,14 @@ This document is the compact self-description PiePro should use to understand it
 
 - Backend framework: FastAPI
 - Frontend framework: Next.js
+- Frontend design language: soft-modern pastel productivity dashboard with rounded cards, sage background, thick black accents, and playful premium workspace styling.
 - Runtime style: local-first, no Docker required
 - State: in-memory by default
 - External memory: TencentDB Agent Memory via TDAI Gateway
 - Process manager: `piepro/cli.py`
 - User config path: `~/.piepro/config.json`
 - Docs are part of operational memory and must be kept updated.
+- Design system docs are part of self-knowledge and must be preserved during UI changes.
 
 ## Invariants
 
