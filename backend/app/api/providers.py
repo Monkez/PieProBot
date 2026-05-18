@@ -8,6 +8,7 @@ router = APIRouter(prefix="/api/providers", tags=["providers"])
 
 class ProviderTestRequest(BaseModel):
     message: str = "health check"
+    provider: str | None = None
 
 
 @router.get("")
@@ -22,6 +23,6 @@ async def provider_status(request: Request):
 
 @router.post("/test")
 async def test_provider(request: Request, payload: ProviderTestRequest):
-    response = await request.app.state.providers.chat([{"role": "user", "content": payload.message}])
+    messages = [{"role": "user", "content": payload.message}]
+    response = await request.app.state.providers.chat_with_provider(payload.provider, messages) if payload.provider else await request.app.state.providers.chat(messages)
     return response.model_dump()
-

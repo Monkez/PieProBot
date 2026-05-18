@@ -22,6 +22,7 @@ This document is the compact self-description PiePro should use to understand it
 - Providers: local, OpenAI, OpenAI-compatible, and custom OpenAI-compatible providers loaded from `config/providers/*.yaml`; custom providers use `base_url`.
 - Channels: Telegram channel support loaded from `config/channels/telegram.yaml`; secrets stay in environment variables such as `TELEGRAM_BOT_TOKEN`.
 - Config UI: frontend Config page can edit YAML-backed config as JSON, validate, and hot reload tools/providers/channels.
+- Config rollback is implemented in-process for the last saved versions during the current backend runtime.
 - Process manager: `piepro/cli.py`
 - Windows process launch avoids extra terminal windows with `CREATE_NO_WINDOW`.
 - Default installed source/config root: `~/.piepro`; on Windows for the current user this is `C:\Users\tiend\.piepro`.
@@ -31,6 +32,8 @@ This document is the compact self-description PiePro should use to understand it
 - Root knowledge files: `AGENT.md`, `SOULD.md`, and `HEARTBEAT.md`.
 - Frontend routes must render quickly; operational pages should fetch data client-side after navigation.
 - Tools, providers, and channels can be enabled, disabled, and edited from the frontend, then saved to YAML config files.
+- Task, subagent, memory, tool, provider, channel, and self-update actions are available from the frontend and call real backend APIs.
+- Pause/retry cancel existing task runners and active subagents before restarting work.
 
 ## Invariants
 

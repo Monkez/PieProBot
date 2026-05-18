@@ -67,6 +67,14 @@ class ProviderRouter:
                 last_error = exc
         raise RuntimeError(f"All providers failed: {last_error}")
 
+    async def chat_with_provider(self, name: str, messages: list[dict[str, str]]) -> ProviderResponse:
+        for provider in self.providers:
+            if provider.name == name:
+                response = await provider.chat(messages)
+                self.cost_total += response.cost_estimate
+                return response
+        raise ValueError(f"Provider is not active: {name}")
+
     async def status(self) -> list[dict[str, object]]:
         active = {provider.name: provider for provider in self.providers}
         status: list[dict[str, object]] = []

@@ -27,11 +27,12 @@ class OrchestratorAgent:
         self.memory = memory
         self.event_bus = event_bus
         self.tasks: dict[str, TaskRecord] = {}
+        self._runners: dict[str, asyncio.Task[None]] = {}
         self.logger = get_logger("orchestrator")
 
     async def submit_user_message(self, message: str, priority: int = 5) -> ChatResponse:
         task = await self.create_task(message, priority)
-        asyncio.create_task(self._run_task(task.id))
+        self._start_runner(task.id)
         return ChatResponse(task_id=task.id, status=task.status, response="Task accepted and delegated.")
 
     async def submit_user_message_and_wait(self, message: str, priority: int = 5) -> ChatResponse:
@@ -127,6 +128,17 @@ class OrchestratorAgent:
 
     async def pause_task(self, task_id: str) -> TaskRecord:
         task = self.tasks[task_id]
+        runner = self._runners.get(task_id)
+        if runner and not runner.done():
+            runner.cancel()
+            try:
+                await runner
+            except asyncio.CancelledError:
+                pass
+        for subagent_id in task.assigned_subagents:
+            record = self.subagents.records.get(subagent_id)
+            if record and record.status not in {"completed", "failed", "cancelled", "destroyed"}:
+                await self.subagents.kill(subagent_id)
         task.status = TaskStatus.PAUSED
         task.touch()
         return task
@@ -134,15 +146,30 @@ class OrchestratorAgent:
     async def resume_task(self, task_id: str) -> TaskRecord:
         task = self.tasks[task_id]
         if task.status == TaskStatus.PAUSED:
-            asyncio.create_task(self._run_task(task.id))
+            task.assigned_subagents = []
+            task.error = None
+            task.status = TaskStatus.PENDING
+            self._start_runner(task.id)
         return task
 
     async def retry_task(self, task_id: str) -> TaskRecord:
         task = self.tasks[task_id]
+        runner = self._runners.get(task_id)
+        if runner and not runner.done():
+            runner.cancel()
+        for subagent_id in list(task.assigned_subagents):
+            record = self.subagents.records.get(subagent_id)
+            if record and record.status not in {"completed", "failed", "cancelled", "destroyed"}:
+                await self.subagents.kill(subagent_id)
         task.status = TaskStatus.PENDING
         task.error = None
-        asyncio.create_task(self._run_task(task.id))
+        task.result = None
+        task.assigned_subagents = []
+        self._start_runner(task.id)
         return task
+
+    def _start_runner(self, task_id: str) -> None:
+        self._runners[task_id] = asyncio.create_task(self._run_task(task_id))
 
     async def _run_task(self, task_id: str) -> None:
         task = await self.plan_task(task_id)

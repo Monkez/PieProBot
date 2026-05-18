@@ -48,9 +48,18 @@ Root resolution order is `--root`, `PIEPRO_HOME`, saved CLI metadata, the defaul
 
 ## Config From Frontend
 
-Open `http://127.0.0.1:3000/config` to edit config files. The editor loads YAML files as JSON, validates writes on save, rolls back invalid writes, and can hot reload tools, providers, and channels.
+Open `http://127.0.0.1:3000/config` to edit config files. The editor loads YAML files as JSON, validates writes on save, rolls back invalid writes automatically, supports explicit rollback of the last saved version, and can hot reload tools, providers, and channels.
 
 The Tools, Providers, and Channels pages expose direct controls for common fields such as enabled state, model, base URL, timeout, token env name, and Telegram chat ID. Saving from these pages writes back to the corresponding file under `config/`.
+
+Operational pages now perform the common runtime actions directly:
+
+- Tasks: create, pause, resume, cancel, and retry.
+- Subagents: inspect status and kill active workers.
+- Tools: edit config and execute test calls.
+- Providers: edit config and test a provider or fallback chain.
+- Memory: search, create, delete, and compact.
+- Self-Update: detect, plan, create candidate, test, start, healthcheck, promote, rollback, report, and destroy failed candidates.
 
 ## Custom Providers
 

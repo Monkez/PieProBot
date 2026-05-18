@@ -79,7 +79,7 @@ Runtime files:
 - **Channels**: channel manager loaded from `config/channels/*.yaml`; Telegram is available through `TELEGRAM_BOT_TOKEN` and optional `default_chat_id`.
 - **Memory**: local memory manager with optional TencentDB Agent Memory external backend.
 - **Self-update**: safe stable/candidate flow simulation under `runtime/bodies`.
-- **Frontend**: Next.js operations console for dashboard, chat, tasks, subagents, tools, providers, memory, self-update, logs, and config.
+- **Frontend**: Next.js operations console for dashboard, chat, task actions, subagent kill, tool execution, provider tests, memory CRUD/compact, self-update workflow, channels, logs, and config.
 - **Design system**: bright minimal fintech dashboard with white/soft-gray surfaces, blue primary accents, warm yellow/orange highlights, rounded cards, subtle neumorphic shadows, and only operationally useful widgets.
 
 ## TencentDB Agent Memory
@@ -162,7 +162,7 @@ npm run build
 npm audit --audit-level=moderate
 ```
 
-Current coverage includes orchestrator non-blocking behavior, subagent lifecycle, tool registry, memory fallback/external adapter behavior, provider config loading, channel config loading, self-update promotion safety, API smoke tests, CLI parsing, and observability logs.
+Current coverage includes orchestrator non-blocking behavior, task pause/resume controls, subagent lifecycle, tool registry, memory fallback/external adapter behavior, provider config loading, channel config loading, self-update promotion safety, API smoke tests, CLI parsing, and observability logs.
 
 ## Documentation Is Runtime Knowledge
 
@@ -191,4 +191,4 @@ Start here:
 - State is in-memory by default.
 - TencentDB Agent Memory is optional and accessed via external gateway.
 - Self-update candidate startup is simulated; promotion safety checks exist but do not yet switch live traffic.
-- Frontend is operational but intentionally minimal.
+- Frontend covers the main runtime actions; deeper charts, RBAC screens, and persistent DB adapters remain future work.

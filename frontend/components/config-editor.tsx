@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, RefreshCw, Save } from "lucide-react";
+import { CheckCircle2, RotateCcw, RefreshCw, Save } from "lucide-react";
 import { apiGet, apiPost, apiPut } from "@/lib/api";
 
 type ValidationResult = { ok: boolean; errors?: string[]; path?: string };
@@ -55,6 +55,22 @@ export function ConfigEditor({ files }: { files: string[] }) {
     }
   }
 
+  async function rollback() {
+    setBusy(true);
+    try {
+      const result = await apiPost<{ ok: boolean; path?: string; message?: string }>("/api/config/rollback", { path: selected });
+      setStatus(result.ok ? `Rolled back ${result.path}` : result.message || "Nothing to rollback");
+      if (result.ok && selected) {
+        const data = await apiGet<Record<string, unknown>>(`/api/config/${selected}`);
+        setContent(JSON.stringify(data, null, 2));
+      }
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="grid gap-4 xl:grid-cols-[320px_1fr]">
       <div className="space-y-2">
@@ -88,6 +104,10 @@ export function ConfigEditor({ files }: { files: string[] }) {
             <button onClick={reload} disabled={busy} className="inline-flex h-11 items-center gap-2 rounded-full bg-[#ffc247] px-4 text-sm font-black text-white disabled:opacity-50">
               <RefreshCw size={16} />
               Reload
+            </button>
+            <button onClick={rollback} disabled={busy || !selected} className="inline-flex h-11 items-center gap-2 rounded-full bg-[#fff0ea] px-4 text-sm font-black text-[#c7512f] disabled:opacity-50">
+              <RotateCcw size={16} />
+              Rollback
             </button>
           </div>
         </div>

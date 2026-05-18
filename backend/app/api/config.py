@@ -14,6 +14,10 @@ class ConfigValidateRequest(BaseModel):
     path: str | None = None
 
 
+class ConfigRollbackRequest(BaseModel):
+    path: str | None = None
+
+
 @router.get("")
 async def list_config(request: Request):
     return {"files": request.app.state.config_loader.list_files()}
@@ -54,5 +58,12 @@ async def reload_config(request: Request):
 
 
 @router.post("/rollback")
-async def rollback_config():
-    return {"ok": True, "message": "Config rollback hook is available; no persisted rollback stack in MVP."}
+async def rollback_config(request: Request, payload: ConfigRollbackRequest | None = None):
+    result = request.app.state.config_loader.rollback(payload.path if payload else None)
+    if result["ok"]:
+        request.app.state.tools.load()
+        request.app.state.providers = request.app.state.provider_router_factory()
+        request.app.state.channels = request.app.state.channel_manager_factory()
+        request.app.state.subagents.factory.provider_router = request.app.state.providers
+        request.app.state.register_runtime_tools()
+    return result

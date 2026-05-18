@@ -24,3 +24,4 @@ This file is operational self-knowledge for PiePro.
 - Route transitions should render immediately.
 - Pages should fetch operational data client-side after navigation.
 - Admin controls should save changes back to YAML config files through the API.
+- Runtime action pages should call real APIs, not just display JSON snapshots.

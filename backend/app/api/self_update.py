@@ -28,6 +28,11 @@ async def create_plan(request: Request, payload: PlanRequest):
     return (await request.app.state.self_update.create_update_plan(payload.goal, payload.files_to_change)).model_dump(mode="json")
 
 
+@router.get("/detect")
+async def detect_update_need(request: Request):
+    return await request.app.state.self_update.detect_update_need()
+
+
 @router.post("/create-candidate")
 async def create_candidate(request: Request, payload: CandidateRequest):
     return (await request.app.state.self_update.create_candidate_copy(payload.plan_id)).model_dump(mode="json")
@@ -61,6 +66,16 @@ async def promote_candidate(request: Request, payload: CandidateIdRequest):
 @router.post("/rollback")
 async def rollback_candidate(request: Request, payload: CandidateIdRequest):
     return await request.app.state.self_update.rollback_candidate(payload.candidate_id)
+
+
+@router.post("/destroy")
+async def destroy_candidate(request: Request, payload: CandidateIdRequest):
+    return await request.app.state.self_update.destroy_failed_candidate(payload.candidate_id)
+
+
+@router.post("/report")
+async def write_report(request: Request, payload: CandidateIdRequest):
+    return await request.app.state.self_update.write_update_report(payload.candidate_id)
 
 
 @router.get("/status")

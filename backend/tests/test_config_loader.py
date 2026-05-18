@@ -12,6 +12,9 @@ def test_config_loader_writes_and_rolls_back_invalid_config(tmp_path) -> None:
 
     loader.write("app.yaml", {"version": 1, "name": "updated"})
     assert loader.read("app.yaml")["name"] == "updated"
+    assert loader.rollback("app.yaml")["ok"]
+    assert loader.read("app.yaml")["name"] == "ok"
+    loader.write("app.yaml", {"version": 1, "name": "updated"})
 
     try:
         loader.write("app.yaml", {"name": "missing-version"})

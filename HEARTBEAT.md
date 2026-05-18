@@ -31,6 +31,7 @@ This file defines the health rhythm PiePro should use to understand itself.
 - Invalid config write.
 - Channel send failure.
 - Candidate update healthcheck failure.
+- Frontend action failure on task, memory, provider, tool, channel, or self-update operations.
 
 ## Recovery Actions
 

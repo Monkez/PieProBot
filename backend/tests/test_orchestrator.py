@@ -38,3 +38,15 @@ async def test_subagent_spawn_and_destroy_lifecycle() -> None:
     record = orchestrator.subagents.get(task.assigned_subagents[0])
     assert record.status == "completed"
 
+
+async def test_task_pause_and_resume_controls_work() -> None:
+    orchestrator = build_orchestrator()
+    response = await orchestrator.submit_user_message("research pause resume")
+    await asyncio.sleep(0.05)
+    paused = await orchestrator.pause_task(response.task_id)
+    assert paused.status == "paused"
+    assert all(orchestrator.subagents.get(sub_id).status == "cancelled" for sub_id in paused.assigned_subagents)
+    resumed = await orchestrator.resume_task(response.task_id)
+    assert resumed.status == "pending"
+    await asyncio.sleep(0.5)
+    assert orchestrator.tasks[response.task_id].status == "completed"
