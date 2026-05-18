@@ -23,20 +23,29 @@ class ProviderRouter:
         for path in sorted(config_dir.glob("*.yaml")):
             data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             name = str(data.get("name") or path.stem)
+            provider_type = str(data.get("provider_type") or data.get("type") or name)
             enabled = bool(data.get("enabled", False))
-            configured.append({"name": name, "enabled": enabled, "default_model": data.get("default_model")})
+            configured.append(
+                {
+                    "name": name,
+                    "provider_type": provider_type,
+                    "enabled": enabled,
+                    "default_model": data.get("default_model"),
+                    "base_url": data.get("base_url"),
+                }
+            )
             if not enabled:
                 continue
             if name == "local":
                 providers.append(LocalProvider())
             elif name == "openai":
                 providers.append(OpenAIProvider())
-            elif name == "openai_compatible":
+            elif provider_type in {"openai_compatible", "custom"} or name in {"openai_compatible", "custom"}:
                 providers.append(
                     OpenAICompatibleProvider(
                         name=name,
                         base_url=str(data.get("base_url", "http://localhost:1234/v1")),
-                        api_key_env=str(data.get("api_key_env", "OPENAI_COMPATIBLE_API_KEY")),
+                        api_key_env=str(data.get("api_key_env", "CUSTOM_PROVIDER_API_KEY" if name == "custom" else "OPENAI_COMPATIBLE_API_KEY")),
                         default_model=str(data.get("default_model", "local-model")),
                     )
                 )

@@ -31,15 +31,14 @@ class ConfigLoader:
 
     def write(self, relative_path: str, data: dict[str, Any]) -> None:
         path = self.safe_path(relative_path)
+        previous = path.read_text(encoding="utf-8") if path.exists() else None
         rendered = yaml.safe_dump(data, sort_keys=False)
-        result = self.validator.validate_file(path) if path.exists() else None
         path.write_text(rendered, encoding="utf-8")
         new_result = self.validator.validate_file(path)
         if not new_result.ok:
-            if result and result.ok:
-                raise ValueError("; ".join(new_result.errors))
+            if previous is not None:
+                path.write_text(previous, encoding="utf-8")
             raise ValueError("; ".join(new_result.errors))
 
     def validate_all(self) -> list[dict[str, object]]:
         return [self.validator.validate_file(self.root / path).model_dump() for path in self.list_files()]
-

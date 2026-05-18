@@ -17,3 +17,13 @@ export async function apiPost<T>(path: string, body: unknown = {}): Promise<T> {
   return response.json();
 }
 
+export async function apiPut<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+    cache: "no-store"
+  });
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}: ${await response.text()}`);
+  return response.json();
+}

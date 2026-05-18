@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { Bell, Bot, Boxes, Brain, FileCog, Hammer, Home, LayoutDashboard, Mail, MessageSquare, Search, Server, ShieldCheck, UserRound } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Bell, Bot, Boxes, Brain, FileCog, Hammer, Home, LayoutDashboard, Mail, MessageSquare, Radio, Search, Server, ShieldCheck, UserRound } from "lucide-react";
 
 const items = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -8,6 +11,7 @@ const items = [
   { href: "/subagents", label: "Subagents", icon: Bot },
   { href: "/tools", label: "Tools", icon: Hammer },
   { href: "/providers", label: "Providers", icon: Server },
+  { href: "/channels", label: "Channels", icon: Radio },
   { href: "/memory", label: "Memory", icon: Brain },
   { href: "/self-update", label: "Self Update", icon: ShieldCheck },
   { href: "/logs", label: "Logs", icon: LayoutDashboard },
@@ -15,6 +19,7 @@ const items = [
 ];
 
 export function TopBar() {
+  const pathname = usePathname();
   return (
     <header className="mb-7 flex flex-col gap-4">
       <div className="flex items-center gap-3">
@@ -28,10 +33,11 @@ export function TopBar() {
       </div>
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <nav className="flex max-w-full gap-2 overflow-x-auto rounded-[28px] border border-[#e4e9f0] bg-white/85 p-2 soft-shadow">
-          {items.map((item, index) => {
+          {items.map((item) => {
             const Icon = item.icon;
+            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
-              <Link key={item.label} href={item.href} className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-black transition ${index === 0 ? "bg-[#2D8CFF] text-white shadow-[0_10px_24px_rgba(45,140,255,0.22)]" : "bg-[#f6f8fb] text-[#667085] hover:bg-[#edf5ff] hover:text-[#2D8CFF]"}`}>
+              <Link key={item.label} href={item.href} className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-black transition ${active ? "bg-[#2D8CFF] text-white shadow-[0_10px_24px_rgba(45,140,255,0.22)]" : "bg-[#f6f8fb] text-[#667085] hover:bg-[#edf5ff] hover:text-[#2D8CFF]"}`}>
                 <Icon size={16} />
                 {item.label}
               </Link>

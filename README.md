@@ -1,6 +1,6 @@
 # PiePro
 
-PiePro is a lightweight local AI agent platform. It provides a FastAPI backend, async orchestrator, temporary subagents, tool registry, provider abstraction, memory abstraction, TencentDB Agent Memory integration, self-update simulation, and a Next.js admin console.
+PiePro is a lightweight local AI agent platform. It provides a FastAPI backend, async orchestrator, temporary subagents, tool registry, provider abstraction, channel adapters, memory abstraction, TencentDB Agent Memory integration, self-update simulation, and a Next.js admin console.
 
 The project is intentionally simple to install and run: no Docker, no required database, no required queue service. The default runtime uses local in-memory state and optional external adapters.
 
@@ -75,7 +75,8 @@ Runtime files:
 - **Orchestrator**: accepts user messages, creates task records, plans work, spawns subagents, collects results, and stays non-blocking.
 - **Subagents**: temporary scoped workers with lifecycle, heartbeat, permissions, allowed tools, budget fields, logs, and result/error records.
 - **Tools**: YAML-configured registry with schema, timeout, permission, audit level, and built-in handlers.
-- **Providers**: provider router loaded from `config/providers/*.yaml`; local mock provider is enabled by default.
+- **Providers**: provider router loaded from `config/providers/*.yaml`; local mock provider is enabled by default. Custom OpenAI-compatible providers can be configured with `provider_type: custom` and `base_url`.
+- **Channels**: channel manager loaded from `config/channels/*.yaml`; Telegram is available through `TELEGRAM_BOT_TOKEN` and optional `default_chat_id`.
 - **Memory**: local memory manager with optional TencentDB Agent Memory external backend.
 - **Self-update**: safe stable/candidate flow simulation under `runtime/bodies`.
 - **Frontend**: Next.js operations console for dashboard, chat, tasks, subagents, tools, providers, memory, self-update, logs, and config.
@@ -115,6 +116,42 @@ $env:TDAI_LLM_API_KEY = "<memory-extraction-model-key>"
 powershell -ExecutionPolicy Bypass -File scripts/start_tencentdb_memory_gateway.ps1
 ```
 
+## Providers And Channels
+
+Custom provider config:
+
+```yaml
+# config/providers/custom.yaml
+version: 1
+name: custom
+provider_type: custom
+enabled: true
+api_key_env: CUSTOM_PROVIDER_API_KEY
+base_url: http://127.0.0.1:8080/v1
+default_model: custom-model
+```
+
+Telegram channel config:
+
+```yaml
+# config/channels/telegram.yaml
+version: 1
+name: telegram
+type: telegram
+enabled: true
+bot_token_env: TELEGRAM_BOT_TOKEN
+default_chat_id: "123456789"
+```
+
+Set secrets in the environment, not in config files:
+
+```powershell
+$env:CUSTOM_PROVIDER_API_KEY = "<custom-provider-key>"
+$env:TELEGRAM_BOT_TOKEN = "<telegram-bot-token>"
+```
+
+The frontend Config page can edit YAML-backed config as validated JSON, then reload tools, providers, and channels without restarting the whole runtime.
+
 ## Testing
 
 ```powershell
@@ -125,7 +162,7 @@ npm run build
 npm audit --audit-level=moderate
 ```
 
-Current coverage includes orchestrator non-blocking behavior, subagent lifecycle, tool registry, memory fallback/external adapter behavior, provider config loading, self-update promotion safety, API smoke tests, CLI parsing, and observability logs.
+Current coverage includes orchestrator non-blocking behavior, subagent lifecycle, tool registry, memory fallback/external adapter behavior, provider config loading, channel config loading, self-update promotion safety, API smoke tests, CLI parsing, and observability logs.
 
 ## Documentation Is Runtime Knowledge
 

@@ -11,7 +11,8 @@ import yaml
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import chat, config, health, logs, memory, providers, self_update, subagents, tasks, tools
+from app.api import channels, chat, config, health, logs, memory, providers, self_update, subagents, tasks, tools
+from app.channels.manager import ChannelManager
 from app.config.hot_reload import HotReloadManager
 from app.config.loader import ConfigLoader
 from app.core.event_bus import EventBus
@@ -35,12 +36,19 @@ class RuntimeState:
         self.hot_reload = HotReloadManager(self.config_loader)
         self.memory = self._build_memory_manager()
         self.providers = ProviderRouter.from_config_dir(root / "config" / "providers")
+        self.channels = ChannelManager.from_config_dir(root / "config" / "channels")
         self.tools = ToolRegistry(root / "config" / "tools")
         self.event_bus = EventBus()
         self.self_update = SelfUpdateManager(root, root / "runtime")
         self.subagents: SubagentManager
         self.orchestrator: OrchestratorAgent
         self.metrics: MetricsCollector
+
+    def provider_router_factory(self) -> ProviderRouter:
+        return ProviderRouter.from_config_dir(self.root / "config" / "providers")
+
+    def channel_manager_factory(self) -> ChannelManager:
+        return ChannelManager.from_config_dir(self.root / "config" / "channels")
 
     def _build_memory_manager(self) -> MemoryManager:
         config_path = self.root / "config" / "memory" / "tencentdb_agent_memory.yaml"
@@ -92,6 +100,8 @@ async def lifespan(app: FastAPI):
     for key, value in state.__dict__.items():
         setattr(app.state, key, value)
     app.state.register_runtime_tools = state.register_runtime_tools
+    app.state.provider_router_factory = state.provider_router_factory
+    app.state.channel_manager_factory = state.channel_manager_factory
     get_logger("api").info("PiePro backend started")
     yield
     get_logger("api").info("PiePro backend stopped")
@@ -132,6 +142,7 @@ app.include_router(tasks.router)
 app.include_router(subagents.router)
 app.include_router(tools.router)
 app.include_router(providers.router)
+app.include_router(channels.router)
 app.include_router(memory.router)
 app.include_router(self_update.router)
 app.include_router(config.router)

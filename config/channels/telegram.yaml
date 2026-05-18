@@ -1,0 +1,8 @@
+version: 1
+name: telegram
+type: telegram
+enabled: false
+bot_token_env: TELEGRAM_BOT_TOKEN
+default_chat_id: null
+api_base: https://api.telegram.org
+timeout_seconds: 10

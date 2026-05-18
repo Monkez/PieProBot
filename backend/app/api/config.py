@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/config", tags=["config"])
@@ -26,8 +26,11 @@ async def get_config(request: Request, path: str):
 
 @router.put("/{path:path}")
 async def put_config(request: Request, path: str, payload: ConfigWriteRequest):
-    request.app.state.config_loader.write(path, payload.data)
-    return {"ok": True}
+    try:
+        request.app.state.config_loader.write(path, payload.data)
+    except (PermissionError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "path": path}
 
 
 @router.post("/validate")
@@ -43,6 +46,9 @@ async def reload_config(request: Request):
     result = request.app.state.hot_reload.reload()
     if result["ok"]:
         request.app.state.tools.load()
+        request.app.state.providers = request.app.state.provider_router_factory()
+        request.app.state.channels = request.app.state.channel_manager_factory()
+        request.app.state.subagents.factory.provider_router = request.app.state.providers
         request.app.state.register_runtime_tools()
     return result
 
@@ -50,4 +56,3 @@ async def reload_config(request: Request):
 @router.post("/rollback")
 async def rollback_config():
     return {"ok": True, "message": "Config rollback hook is available; no persisted rollback stack in MVP."}
-

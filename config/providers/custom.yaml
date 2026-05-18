@@ -1,0 +1,7 @@
+version: 1
+name: custom
+provider_type: custom
+enabled: false
+api_key_env: CUSTOM_PROVIDER_API_KEY
+base_url: http://127.0.0.1:8080/v1
+default_model: custom-model

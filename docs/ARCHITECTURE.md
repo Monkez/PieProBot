@@ -15,6 +15,7 @@ Path: `backend/app`
 - Subagent manager: `backend/app/subagents/manager.py`
 - Tool registry: `backend/app/tools/registry.py`
 - Provider router: `backend/app/providers/router.py`
+- Channel manager: `backend/app/channels/manager.py`
 - Memory manager: `backend/app/memory/manager.py`
 - Self-update manager: `backend/app/self_update/manager.py`
 - Observability: `backend/app/observability`
@@ -23,7 +24,7 @@ Path: `backend/app`
 
 Path: `frontend`
 
-Next.js admin console with pages for dashboard, chat, tasks, subagents, tools, providers, memory, self-update, logs, and config.
+Next.js admin console with pages for dashboard, chat, tasks, subagents, tools, providers, channels, memory, self-update, logs, and config.
 
 The shared UI shell uses a bright minimal fintech dashboard aesthetic: white and soft-gray surfaces, rounded frame, floating top navigation, blue primary accents, warm yellow/orange highlights, rounded widgets, and subtle neumorphic shadows. Navigation remains topbar-only unless explicitly changed.
 
@@ -50,7 +51,8 @@ For uv tool installs, `piepro start` auto-bootstraps the project source and `con
 5. Subagent runs with allowed tools and provider router.
 6. Orchestrator collects result and finalizes task.
 7. Memory manager stores task summary and captures the user/assistant turn.
-8. Logs include correlation ID, task ID, and subagent ID where available.
+8. Channel webhooks, such as Telegram, can submit inbound messages into the orchestrator as tasks.
+9. Logs include correlation ID, task ID, and subagent ID where available.
 
 ## Non-Blocking Principle
 
@@ -59,6 +61,7 @@ The orchestrator must stay responsive. Heavy work is delegated to subagents via 
 ## Extension Points
 
 - Add providers under `backend/app/providers`.
+- Add channels under `backend/app/channels` and `config/channels`.
 - Add tools under `backend/app/tools/builtins` and `config/tools`.
 - Add memory backends under `backend/app/memory`.
 - Add frontend views under `frontend/app`.

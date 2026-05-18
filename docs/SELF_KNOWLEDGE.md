@@ -19,6 +19,9 @@ This document is the compact self-description PiePro should use to understand it
 - Runtime style: local-first, no Docker required
 - State: in-memory by default
 - External memory: TencentDB Agent Memory via TDAI Gateway
+- Providers: local, OpenAI, OpenAI-compatible, and custom OpenAI-compatible providers loaded from `config/providers/*.yaml`; custom providers use `base_url`.
+- Channels: Telegram channel support loaded from `config/channels/telegram.yaml`; secrets stay in environment variables such as `TELEGRAM_BOT_TOKEN`.
+- Config UI: frontend Config page can edit YAML-backed config as JSON, validate, and hot reload tools/providers/channels.
 - Process manager: `piepro/cli.py`
 - Windows process launch avoids extra terminal windows with `CREATE_NO_WINDOW`.
 - Default installed source/config root: `~/.piepro`; on Windows for the current user this is `C:\Users\tiend\.piepro`.
@@ -33,6 +36,7 @@ This document is the compact self-description PiePro should use to understand it
 - Tool permissions must be checked before execution.
 - Shell tool stays disabled by default.
 - Secrets must not be logged or stored in memory.
+- Telegram bot tokens and provider API keys must remain environment variables, not checked into config.
 - Self-update must use candidate copies.
 - TencentDB memory failure must fall back to local memory.
 

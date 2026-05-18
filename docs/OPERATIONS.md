@@ -46,6 +46,30 @@ Root resolution order is `--root`, `PIEPRO_HOME`, saved CLI metadata, the defaul
 - Frontend: `127.0.0.1:3000`
 - Optional TencentDB Agent Memory Gateway: `127.0.0.1:8420`
 
+## Config From Frontend
+
+Open `http://127.0.0.1:3000/config` to edit config files. The editor loads YAML files as JSON, validates writes on save, rolls back invalid writes, and can hot reload tools, providers, and channels.
+
+## Custom Providers
+
+Add or edit `config/providers/custom.yaml`:
+
+```yaml
+version: 1
+name: custom
+provider_type: custom
+enabled: true
+api_key_env: CUSTOM_PROVIDER_API_KEY
+base_url: http://127.0.0.1:8080/v1
+default_model: custom-model
+```
+
+Set `$env:CUSTOM_PROVIDER_API_KEY` before starting PiePro if the provider requires a bearer token.
+
+## Telegram Channel
+
+Edit `config/channels/telegram.yaml`, set `enabled: true`, and provide `TELEGRAM_BOT_TOKEN` through the environment. Use the Channels page to send a test message. Incoming Telegram webhook payloads can be posted to `POST /api/channels/telegram/webhook`; PiePro turns text messages into orchestrator tasks.
+
 ## Logs
 
 - Backend process log: `logs/backend.cli.log`
