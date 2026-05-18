@@ -1,11 +1,16 @@
-import { Card } from "@/components/card";
-import { apiGet } from "@/lib/api";
+"use client";
 
-export default async function TasksPage() {
-  const tasks = await apiGet<any[]>("/api/tasks").catch(() => []);
+import { Card } from "@/components/card";
+import { LoadingCard } from "@/components/loading-card";
+import { useApi } from "@/lib/use-api";
+
+export default function TasksPage() {
+  const { data: tasks, loading, error } = useApi<any[]>("/api/tasks", []);
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-black text-[#30343b]">Task Manager</h1>
+      {loading ? <LoadingCard label="Loading tasks" /> : null}
+      {error ? <div className="rounded-[22px] bg-[#fff0ea] p-4 text-sm font-bold text-[#c7512f]">{error}</div> : null}
       <Card title="Tasks">
         <div className="overflow-auto">
           <table className="w-full text-left text-sm">

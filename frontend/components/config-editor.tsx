@@ -14,6 +14,10 @@ export function ConfigEditor({ files }: { files: string[] }) {
   const sortedFiles = useMemo(() => [...files].sort(), [files]);
 
   useEffect(() => {
+    if (!selected && sortedFiles[0]) setSelected(sortedFiles[0]);
+  }, [selected, sortedFiles]);
+
+  useEffect(() => {
     if (!selected) return;
     setBusy(true);
     apiGet<Record<string, unknown>>(`/api/config/${selected}`)

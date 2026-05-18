@@ -168,6 +168,12 @@ Current coverage includes orchestrator non-blocking behavior, subagent lifecycle
 
 PiePro treats `docs/` as part of the bot self-knowledge base. Any code change that alters behavior, config, operations, architecture, memory, security, self-update, or install flow must update the relevant docs in the same change.
 
+The root runtime knowledge files are loaded first by convention:
+
+- [AGENT.md](AGENT.md): agent runtime contract.
+- [SOULD.md](SOULD.md): operating philosophy.
+- [HEARTBEAT.md](HEARTBEAT.md): health rhythm and recovery signals.
+
 Start here:
 
 - [Architecture](docs/ARCHITECTURE.md)

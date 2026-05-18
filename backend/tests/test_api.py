@@ -18,9 +18,10 @@ def test_health_and_chat_api() -> None:
 def test_api_tools_and_memory() -> None:
     with TestClient(app) as client:
         assert client.get("/api/tools").status_code == 200
+        assert client.get("/api/tools").json()[0]["config_path"].startswith("tools/")
         channels = client.get("/api/channels")
         assert channels.status_code == 200
-        assert any(item["name"] == "telegram" for item in channels.json())
+        assert any(item["name"] == "telegram" and item["config_path"] == "channels/telegram.yaml" for item in channels.json())
         created = client.post("/api/memory", json={"content": "use qdrant for vector memory"}).json()
         assert created["id"].startswith("mem_")
         results = client.get("/api/memory/search?q=qdrant").json()

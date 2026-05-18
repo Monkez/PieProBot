@@ -1,5 +1,9 @@
+"use client";
+
 import { AvatarStack, Card, Pill, ProgressBar, Stat } from "@/components/card";
+import { LoadingCard } from "@/components/loading-card";
 import { apiGet } from "@/lib/api";
+import { useEffect, useState } from "react";
 import { Bot, Brain, CheckCircle2, Clock3, MessageCircle, Plus, Server, ShieldCheck, Sparkles } from "lucide-react";
 
 async function load() {
@@ -17,6 +21,18 @@ async function load() {
   return { health, ready, metrics, tasks, subagents, tools, providers, memory, updates };
 }
 
+const initialData = {
+  health: { status: "loading" },
+  ready: { tools: 0 },
+  metrics: {},
+  tasks: [] as any[],
+  subagents: [] as any[],
+  tools: [] as any[],
+  providers: [] as any[],
+  memory: { local_items: 0 },
+  updates: { candidates: [], history: [] }
+};
+
 const statusTone = {
   completed: "bg-[#e8f8f2]",
   running: "bg-[#eaf4ff]",
@@ -31,13 +47,21 @@ const activityCards = [
   { name: "Memory", message: "Memory mode is active.", Icon: Brain }
 ];
 
-export default async function DashboardPage() {
-  const data = await load();
+export default function DashboardPage() {
+  const [data, setData] = useState(initialData);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    load()
+      .then((value) => setData(value as typeof initialData))
+      .finally(() => setLoading(false));
+  }, []);
+
   const memory = {
     external_enabled: false,
     external_healthy: false,
-    local_items: 0,
-    ...data.memory
+    ...data.memory,
+    local_items: data.memory.local_items ?? 0
   };
   const activeSubagents = data.subagents.filter((item) => ["running", "waiting_for_tool", "reporting"].includes(item.status)).length;
   const recentTasks = data.tasks.slice(-5).reverse();
@@ -47,6 +71,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-7">
+      {loading ? <LoadingCard label="Loading dashboard" /> : null}
       <section className="grid gap-4 xl:grid-cols-[1.1fr_1.9fr]">
         <Card title="Runtime Overview" className="min-h-[260px]">
           <div className="flex items-start justify-between">

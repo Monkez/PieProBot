@@ -28,8 +28,10 @@ class ProviderRouter:
             configured.append(
                 {
                     "name": name,
+                    "config_path": f"providers/{path.name}",
                     "provider_type": provider_type,
                     "enabled": enabled,
+                    "api_key_env": data.get("api_key_env"),
                     "default_model": data.get("default_model"),
                     "base_url": data.get("base_url"),
                 }

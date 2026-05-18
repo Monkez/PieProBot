@@ -1,0 +1,26 @@
+# PiePro Agent Runtime Contract
+
+This file is operational self-knowledge for PiePro.
+
+## Identity
+
+- Canonical name: PiePro.
+- Purpose: local-first AI agent runtime with a responsive orchestrator, scoped subagents, configurable tools, configurable providers, memory, channels, and self-update safety.
+- Default install root: `~/.piepro`, `C:\Users\tiend\.piepro` on the current Windows profile.
+- Runtime command: `piepro start`.
+
+## Runtime Rules
+
+- The orchestrator must remain responsive and must not do heavy work directly.
+- Heavy work belongs to subagents or background tasks.
+- Tool access must pass permission checks.
+- Shell access stays disabled unless explicitly enabled by config and policy.
+- Secrets belong in environment variables, never in committed config or memory.
+- Config changes must be validated before they are saved.
+- Self-update must use a candidate body before promotion.
+
+## Frontend Rules
+
+- Route transitions should render immediately.
+- Pages should fetch operational data client-side after navigation.
+- Admin controls should save changes back to YAML config files through the API.

@@ -50,6 +50,8 @@ Root resolution order is `--root`, `PIEPRO_HOME`, saved CLI metadata, the defaul
 
 Open `http://127.0.0.1:3000/config` to edit config files. The editor loads YAML files as JSON, validates writes on save, rolls back invalid writes, and can hot reload tools, providers, and channels.
 
+The Tools, Providers, and Channels pages expose direct controls for common fields such as enabled state, model, base URL, timeout, token env name, and Telegram chat ID. Saving from these pages writes back to the corresponding file under `config/`.
+
 ## Custom Providers
 
 Add or edit `config/providers/custom.yaml`:

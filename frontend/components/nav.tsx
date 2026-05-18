@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { Bell, Bot, Boxes, Brain, FileCog, Hammer, Home, LayoutDashboard, Mail, MessageSquare, Radio, Search, Server, ShieldCheck, UserRound } from "lucide-react";
 
 const items = [
@@ -20,6 +21,10 @@ const items = [
 
 export function TopBar() {
   const pathname = usePathname();
+  const router = useRouter();
+  useEffect(() => {
+    items.forEach((item) => router.prefetch(item.href));
+  }, [router]);
   return (
     <header className="mb-7 flex flex-col gap-4">
       <div className="flex items-center gap-3">

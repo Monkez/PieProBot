@@ -28,6 +28,9 @@ This document is the compact self-description PiePro should use to understand it
 - User config path: `~/.piepro/.runtime/user_config.json`
 - Docs are part of operational memory and must be kept updated.
 - Design system docs are part of self-knowledge and must be preserved during UI changes.
+- Root knowledge files: `AGENT.md`, `SOULD.md`, and `HEARTBEAT.md`.
+- Frontend routes must render quickly; operational pages should fetch data client-side after navigation.
+- Tools, providers, and channels can be enabled, disabled, and edited from the frontend, then saved to YAML config files.
 
 ## Invariants
 

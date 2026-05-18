@@ -26,10 +26,14 @@ class ChannelManager:
             configured.append(
                 {
                     "name": name,
+                    "config_path": f"channels/{path.name}",
                     "type": channel_type,
                     "enabled": enabled,
                     "bot_token_env": data.get("bot_token_env"),
+                    "default_chat_id": data.get("default_chat_id"),
                     "default_chat_id_configured": bool(data.get("default_chat_id")),
+                    "api_base": data.get("api_base"),
+                    "timeout_seconds": data.get("timeout_seconds"),
                 }
             )
             if channel_type == "telegram":

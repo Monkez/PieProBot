@@ -29,13 +29,16 @@ class ToolRegistry:
         self.config_dir = config_dir
         self.executor = executor or ToolExecutor()
         self.definitions: dict[str, ToolDefinition] = {}
+        self.config_paths: dict[str, str] = {}
 
     def load(self) -> None:
         self.definitions.clear()
+        self.config_paths.clear()
         for path in sorted(self.config_dir.glob("*.yaml")):
             data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
             definition = ToolDefinition.model_validate(data)
             self.definitions[definition.name] = definition
+            self.config_paths[definition.name] = f"tools/{path.name}"
             handler_path = definition.handler or BUILTIN_HANDLERS.get(definition.name)
             if handler_path:
                 self.executor.register_handler(definition.name, _load_callable(handler_path))
@@ -48,4 +51,3 @@ class ToolRegistry:
 
     async def execute(self, name: str, payload: dict[str, Any], granted_permissions: dict[str, bool] | None = None) -> ToolResult:
         return await self.executor.execute(self.get(name), payload, granted_permissions)
-

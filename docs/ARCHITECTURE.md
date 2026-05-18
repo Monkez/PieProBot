@@ -28,6 +28,8 @@ Next.js admin console with pages for dashboard, chat, tasks, subagents, tools, p
 
 The shared UI shell uses a bright minimal fintech dashboard aesthetic: white and soft-gray surfaces, rounded frame, floating top navigation, blue primary accents, warm yellow/orange highlights, rounded widgets, and subtle neumorphic shadows. Navigation remains topbar-only unless explicitly changed.
 
+Frontend route transitions are intentionally client-first: pages render immediately, then fetch operational data from the API after navigation. Topbar routes are prefetched to keep tab switching responsive.
+
 ### CLI
 
 Path: `piepro/cli.py`

@@ -13,13 +13,14 @@ class ToolExecuteRequest(BaseModel):
 
 @router.get("")
 async def list_tools(request: Request):
-    return [tool.model_dump() for tool in request.app.state.tools.list()]
+    return [{**tool.model_dump(), "config_path": request.app.state.tools.config_paths.get(tool.name)} for tool in request.app.state.tools.list()]
 
 
 @router.get("/{tool_name:path}")
 async def get_tool(request: Request, tool_name: str):
     try:
-        return request.app.state.tools.get(tool_name).model_dump()
+        tool = request.app.state.tools.get(tool_name)
+        return {**tool.model_dump(), "config_path": request.app.state.tools.config_paths.get(tool.name)}
     except KeyError:
         raise HTTPException(status_code=404, detail="Tool not found") from None
 
@@ -47,4 +48,3 @@ async def reload_tools(request: Request):
     request.app.state.tools.load()
     request.app.state.register_runtime_tools()
     return {"ok": True, "count": len(request.app.state.tools.definitions)}
-
