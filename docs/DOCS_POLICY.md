@@ -17,6 +17,7 @@ Update docs in the same change when modifying:
 - Security controls.
 - Frontend workflows.
 - Frontend visual system or component style.
+- Dashboard information architecture or removal/addition of major widgets.
 - Operational troubleshooting.
 
 ## Source of Truth

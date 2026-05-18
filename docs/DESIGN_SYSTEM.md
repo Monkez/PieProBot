@@ -28,13 +28,9 @@ Preferred components:
 - Rounded pills and capsules.
 - Chunky circular icon buttons.
 - Cute progress bars.
-- Calendar blocks with colorful active dates.
 - Avatar stacks with soft colors.
-- Sticky note cards with subtle rotation.
-- Rounded timer and focus widgets.
-- Folder/file cards with upload status.
-- Mobile preview cards for compact layouts.
 - Rounded toggles and segmented controls.
+- Operational status cards for runtime, tasks, memory, tools, providers, and self-update.
 
 ## Palette
 
@@ -50,6 +46,8 @@ Avoid:
 - Oversaturated colors.
 - Dense gray admin dashboards.
 - Flat black backgrounds except for accent pills/rails/cards.
+- Decorative widgets that do not serve PiePro operations.
+- Filling the dashboard with fake productivity modules just to match the style.
 
 ## Typography
 
@@ -67,3 +65,4 @@ Avoid:
 
 Any frontend change must preserve this design language unless the user explicitly changes the visual direction.
 
+Style is a visual system, not a content requirement. Only include components that support real PiePro operations or navigation.

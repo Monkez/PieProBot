@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell, Bot, Boxes, Brain, CalendarDays, FileCog, Hammer, Home, LayoutDashboard, Mail, MessageSquare, Search, Server, Settings, ShieldCheck, UserRound } from "lucide-react";
+import { Bell, Bot, Boxes, Brain, FileCog, Hammer, Home, LayoutDashboard, Mail, MessageSquare, Search, Server, Settings, ShieldCheck, UserRound } from "lucide-react";
 
 const items = [
   { href: "/dashboard", label: "Dashboard", icon: Home },
@@ -11,8 +11,7 @@ const items = [
   { href: "/memory", label: "Memory", icon: Brain },
   { href: "/self-update", label: "Self Update", icon: ShieldCheck },
   { href: "/logs", label: "Logs", icon: LayoutDashboard },
-  { href: "/config", label: "Config", icon: FileCog },
-  { href: "/dashboard", label: "Calendar", icon: CalendarDays }
+  { href: "/config", label: "Config", icon: FileCog }
 ];
 
 export function Nav() {
