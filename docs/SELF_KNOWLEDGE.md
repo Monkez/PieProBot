@@ -15,7 +15,7 @@ This document is the compact self-description PiePro should use to understand it
 - Backend framework: FastAPI
 - Frontend framework: Next.js
 - Frontend design language: bright minimal fintech dashboard with white/soft-gray surfaces, blue primary accents, warm yellow/orange highlights, rounded cards, subtle neumorphic shadows, and premium SaaS spacing. Use the style without adding unnecessary decorative modules.
-- Navigation is topbar-only by default; no sidebar unless explicitly requested.
+- Navigation is sidebar-first by default, with prefetched links for fast route switching.
 - Runtime style: local-first, no Docker required
 - State: in-memory by default
 - External memory: TencentDB Agent Memory via TDAI Gateway
@@ -25,6 +25,7 @@ This document is the compact self-description PiePro should use to understand it
 - Config rollback is implemented in-process for the last saved versions during the current backend runtime.
 - Process manager: `piepro/cli.py`
 - Windows process launch avoids extra terminal windows with `CREATE_NO_WINDOW`.
+- Windows autostart is managed by `piepro autostart enable|disable|status` and uses a hidden VBS startup script.
 - Default installed source/config root: `~/.piepro`; on Windows for the current user this is `C:\Users\tiend\.piepro`.
 - User config path: `~/.piepro/.runtime/user_config.json`
 - Docs are part of operational memory and must be kept updated.

@@ -19,47 +19,51 @@ const items = [
   { href: "/config", label: "Config", icon: FileCog }
 ];
 
-export function TopBar() {
+export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   useEffect(() => {
     items.forEach((item) => router.prefetch(item.href));
   }, [router]);
   return (
-    <header className="mb-7 flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <button className="grid h-12 w-12 place-items-center rounded-full bg-white text-[#2D8CFF] soft-shadow" aria-label="Menu">
-          <LayoutDashboard size={20} />
-        </button>
-        <div>
-          <div className="text-3xl font-black tracking-normal text-[#30343b]">PiePro</div>
-          <div className="text-sm font-bold text-[#9aa3af]">Premium local agent workspace</div>
+    <aside className="flex h-full flex-col gap-5 rounded-[28px] border border-[#e4e9f0] bg-white/90 p-4 soft-shadow">
+      <div className="flex items-center gap-3 px-1">
+        <div className="grid h-12 w-12 place-items-center rounded-full bg-[#2D8CFF] text-xl font-black text-white shadow-[0_10px_24px_rgba(45,140,255,0.22)]">P</div>
+        <div className="min-w-0">
+          <div className="text-2xl font-black tracking-normal text-[#30343b]">PiePro</div>
+          <div className="truncate text-xs font-bold text-[#9aa3af]">Local agent OS</div>
         </div>
       </div>
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        <nav className="flex max-w-full gap-2 overflow-x-auto rounded-[28px] border border-[#e4e9f0] bg-white/85 p-2 soft-shadow">
-          {items.map((item) => {
-            const Icon = item.icon;
-            const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
-              <Link key={item.label} href={item.href} className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-black transition ${active ? "bg-[#2D8CFF] text-white shadow-[0_10px_24px_rgba(45,140,255,0.22)]" : "bg-[#f6f8fb] text-[#667085] hover:bg-[#edf5ff] hover:text-[#2D8CFF]"}`}>
-                <Icon size={16} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+      <nav className="grid gap-2 overflow-y-auto pr-1">
+        {items.map((item) => {
+          const Icon = item.icon;
+          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          return (
+            <Link key={item.label} href={item.href} className={`inline-flex h-12 items-center gap-3 rounded-[18px] px-4 text-sm font-black transition ${active ? "bg-[#2D8CFF] text-white shadow-[0_10px_24px_rgba(45,140,255,0.22)]" : "bg-[#f6f8fb] text-[#667085] hover:bg-[#edf5ff] hover:text-[#2D8CFF]"}`}>
+              <Icon size={18} />
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+      <div className="mt-auto space-y-3 rounded-[24px] bg-[#f6f8fb] p-3">
         <div className="flex items-center gap-2">
           {[Mail, Bell, Search].map((Icon, index) => (
-            <button key={index} className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#9aa3af] soft-shadow" aria-label="Action">
-              <Icon size={18} />
+            <button key={index} className="grid h-10 w-10 place-items-center rounded-full bg-white text-[#9aa3af] soft-shadow" aria-label="Action">
+              <Icon size={16} />
             </button>
           ))}
-          <div className="grid h-12 w-12 place-items-center rounded-full border-2 border-white bg-[#ffc247] text-white shadow-md">
-            <UserRound size={21} />
+        </div>
+        <div className="flex items-center gap-3 rounded-[18px] bg-white p-2">
+          <div className="grid h-10 w-10 place-items-center rounded-full bg-[#ffc247] text-white shadow-md">
+            <UserRound size={18} />
+          </div>
+          <div className="min-w-0">
+            <div className="truncate text-sm font-black text-[#30343b]">Local Admin</div>
+            <div className="text-xs font-bold text-[#9aa3af]">operator</div>
           </div>
         </div>
       </div>
-    </header>
+    </aside>
   );
 }

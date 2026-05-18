@@ -44,6 +44,9 @@ piepro start
 piepro status
 piepro restart
 piepro stop
+piepro autostart enable
+piepro autostart status
+piepro autostart disable
 piepro use E:\SideProjects\PiePro
 ```
 
@@ -54,6 +57,7 @@ piepro start --no-open
 piepro start --backend-only
 piepro restart --force
 piepro --root E:\SideProjects\PiePro start
+piepro autostart enable --open
 ```
 
 Default URLs:
@@ -69,6 +73,7 @@ Runtime files:
 - PID state: `runtime/piepro.pid.json`
 - Backend log: `logs/backend.cli.log`
 - Frontend log: `logs/frontend.cli.log`
+- Windows autostart script: `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\PieProAutostart.vbs`
 
 ## Architecture
 
@@ -183,6 +188,7 @@ Start here:
 - [Development](docs/DEVELOPMENT.md)
 - [Design System](docs/DESIGN_SYSTEM.md)
 - [Self Knowledge](docs/SELF_KNOWLEDGE.md)
+- [System Review](docs/SYSTEM_REVIEW.md)
 - [Documentation Policy](docs/DOCS_POLICY.md)
 
 ## Current Boundaries

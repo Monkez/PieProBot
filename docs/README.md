@@ -12,3 +12,4 @@ Documents:
 - `DESIGN_SYSTEM.md`: frontend visual identity and component rules.
 - `SELF_KNOWLEDGE.md`: facts PiePro should know about itself.
 - `DOCS_POLICY.md`: rules for keeping docs synchronized with code.
+- `SYSTEM_REVIEW.md`: current strengths, weaknesses, and known missing capabilities.

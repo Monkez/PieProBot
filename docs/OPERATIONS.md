@@ -31,6 +31,9 @@ piepro start
 piepro status
 piepro restart
 piepro stop
+piepro autostart enable
+piepro autostart status
+piepro autostart disable
 piepro use E:\SideProjects\PiePro
 ```
 
@@ -39,6 +42,16 @@ piepro use E:\SideProjects\PiePro
 Use `piepro use <path>` to change the default project root without setting `PIEPRO_HOME` or passing `--root`.
 
 Root resolution order is `--root`, `PIEPRO_HOME`, saved CLI metadata, the default PiePro home directory, current directory/parents, then installed package parents.
+
+## Windows Autostart
+
+```powershell
+piepro autostart enable
+piepro autostart status
+piepro autostart disable
+```
+
+`piepro autostart enable` creates `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\PieProAutostart.vbs`. The script runs PiePro through `pythonw` with `--no-open`, so Windows sign-in starts backend/frontend without opening an extra terminal window. Use `piepro autostart enable --open` if the browser should open on sign-in.
 
 ## Ports
 

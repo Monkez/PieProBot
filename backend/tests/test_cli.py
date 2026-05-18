@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from piepro.cli import DEFAULT_PROJECT_ROOT, build_parser, port_from_url, resolve_root
+import argparse
+
+from piepro.cli import DEFAULT_PROJECT_ROOT, build_autostart_command, build_hidden_vbs, build_parser, port_from_url, resolve_root
 
 
 def test_cli_parser_supports_process_commands() -> None:
@@ -15,6 +17,10 @@ def test_cli_parser_supports_process_commands() -> None:
     assert init_args.path is None
     assert parser.parse_args(["init", "PieProBot"]).path == "PieProBot"
     assert parser.parse_args(["use", "."]).command == "use"
+    autostart_args = parser.parse_args(["autostart", "enable", "--open"])
+    assert autostart_args.command == "autostart"
+    assert autostart_args.autostart_command == "enable"
+    assert autostart_args.open is True
     assert parser.parse_args(["start", "--no-open"]).no_open is True
     assert DEFAULT_PROJECT_ROOT.name == ".piepro"
 
@@ -29,3 +35,14 @@ def test_cli_resolves_project_root(tmp_path: Path) -> None:
 def test_cli_parses_ports_from_urls() -> None:
     assert port_from_url("http://127.0.0.1:8000") == 8000
     assert port_from_url("http://127.0.0.1:3000/dashboard") == 3000
+
+
+def test_cli_builds_hidden_autostart_command(tmp_path: Path) -> None:
+    args = argparse.Namespace(host="127.0.0.1", backend_port=8123, frontend_port=3123, open=False)
+    command = build_autostart_command(tmp_path, args)
+    assert "--root" in command
+    assert str(tmp_path) in command
+    assert "--no-open" in command
+    script = build_hidden_vbs(command)
+    assert "WScript.Shell" in script
+    assert ", 0, False" in script

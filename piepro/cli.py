@@ -39,6 +39,8 @@ def main(argv: list[str] | None = None) -> int:
         return init_project(args)
     if args.command == "use":
         return use_project(args)
+    if args.command == "autostart":
+        return autostart(args)
     parser.print_help()
     return 1
 
@@ -78,6 +80,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     use_parser = sub.add_parser("use", help="Set the default PiePro project root.")
     use_parser.add_argument("path", help="Existing PiePro project directory.")
+
+    autostart_parser = sub.add_parser("autostart", help="Manage Windows startup integration.")
+    autostart_sub = autostart_parser.add_subparsers(dest="autostart_command")
+    enable_parser = autostart_sub.add_parser("enable", help="Start PiePro automatically when Windows signs in.")
+    enable_parser.add_argument("--open", action="store_true", help="Open the frontend browser on Windows sign-in.")
+    enable_parser.add_argument("--backend-port", type=int, default=8000)
+    enable_parser.add_argument("--frontend-port", type=int, default=3000)
+    enable_parser.add_argument("--host", default="127.0.0.1")
+    autostart_sub.add_parser("disable", help="Remove PiePro from Windows startup.")
+    autostart_sub.add_parser("status", help="Show Windows startup integration status.")
     return parser
 
 
@@ -242,6 +254,87 @@ def use_project(args: argparse.Namespace) -> int:
     return 0
 
 
+def autostart(args: argparse.Namespace) -> int:
+    command = getattr(args, "autostart_command", None)
+    if command == "enable":
+        return enable_autostart(args)
+    if command == "disable":
+        return disable_autostart()
+    if command == "status":
+        return autostart_status()
+    print("Usage: piepro autostart enable|disable|status")
+    return 1
+
+
+def startup_script_path() -> Path:
+    if os.name != "nt":
+        raise SystemExit("PiePro autostart is currently supported on Windows only.")
+    appdata = os.getenv("APPDATA")
+    if not appdata:
+        raise SystemExit("APPDATA is not set; cannot locate Windows Startup folder.")
+    return Path(appdata) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup" / "PieProAutostart.vbs"
+
+
+def enable_autostart(args: argparse.Namespace) -> int:
+    root = resolve_root(getattr(args, "root", None), auto_init=True)
+    write_user_config({"default_root": str(root)})
+    script_path = startup_script_path()
+    script_path.parent.mkdir(parents=True, exist_ok=True)
+    command = build_autostart_command(root, args)
+    script_path.write_text(build_hidden_vbs(command), encoding="utf-8")
+    print(f"PiePro autostart enabled: {script_path}")
+    print(f"Startup command: {command}")
+    return 0
+
+
+def disable_autostart() -> int:
+    script_path = startup_script_path()
+    script_path.unlink(missing_ok=True)
+    print("PiePro autostart disabled")
+    return 0
+
+
+def autostart_status() -> int:
+    script_path = startup_script_path()
+    if script_path.exists():
+        print(f"PiePro autostart: enabled ({script_path})")
+        return 0
+    print("PiePro autostart: disabled")
+    return 1
+
+
+def build_autostart_command(root: Path, args: argparse.Namespace) -> str:
+    executable = pythonw_command()
+    command = [
+        executable,
+        "-m",
+        "piepro.cli",
+        "--root",
+        str(root),
+        "start",
+        "--host",
+        str(getattr(args, "host", "127.0.0.1")),
+        "--backend-port",
+        str(getattr(args, "backend_port", 8000)),
+        "--frontend-port",
+        str(getattr(args, "frontend_port", 3000)),
+    ]
+    if not getattr(args, "open", False):
+        command.append("--no-open")
+    return subprocess.list2cmdline(command)
+
+
+def build_hidden_vbs(command: str) -> str:
+    escaped = command.replace('"', '""')
+    return "\n".join(
+        [
+            "Set shell = CreateObject(\"WScript.Shell\")",
+            f"shell.Run \"{escaped}\", 0, False",
+            "",
+        ]
+    )
+
+
 def stop(args: argparse.Namespace) -> int:
     root = resolve_root(getattr(args, "root", None))
     _, _, pid_file = runtime_paths(root)
@@ -335,6 +428,14 @@ def python_command() -> str:
     if candidate.exists():
         return str(candidate)
     return sys.executable
+
+
+def pythonw_command() -> str:
+    if os.name == "nt":
+        candidate = Path(sys.executable).with_name("pythonw.exe")
+        if candidate.exists():
+            return str(candidate)
+    return python_command()
 
 
 def build_frontend_command(frontend_dir: Path, port: int) -> list[str]:

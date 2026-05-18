@@ -17,6 +17,7 @@ This file defines the health rhythm PiePro should use to understand itself.
 - Backend health: `GET /health`.
 - Readiness: `GET /ready`.
 - Metrics: `GET /metrics`.
+- Windows autostart status: `piepro autostart status`.
 - Channels: `GET /api/channels`.
 - Providers: `GET /api/providers/status`.
 - Tools: `GET /api/tools`.
