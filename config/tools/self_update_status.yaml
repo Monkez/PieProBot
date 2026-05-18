@@ -1,0 +1,18 @@
+version: 1
+name: self_update.status
+description: Return self-update body and candidate status
+category: update
+enabled: true
+input_schema:
+  type: object
+output_schema:
+  type: object
+permissions: {}
+timeout_seconds: 5
+retry_policy:
+  max_retries: 0
+  backoff: none
+sandbox_policy: {}
+rate_limit: {}
+audit_level: standard
+

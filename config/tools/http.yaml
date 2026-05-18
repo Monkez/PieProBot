@@ -1,0 +1,27 @@
+version: 1
+name: http.request
+description: Make a bounded outbound HTTP request
+category: network
+enabled: true
+input_schema:
+  type: object
+  properties:
+    url:
+      type: string
+    method:
+      type: string
+  required:
+    - url
+output_schema:
+  type: object
+permissions:
+  network: true
+timeout_seconds: 20
+retry_policy:
+  max_retries: 1
+  backoff: exponential
+sandbox_policy: {}
+rate_limit:
+  per_minute: 30
+audit_level: full
+

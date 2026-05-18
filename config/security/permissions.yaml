@@ -1,0 +1,20 @@
+version: 1
+roles:
+  admin:
+    can_promote: true
+    can_execute_shell: true
+    can_edit_config: true
+  operator:
+    can_promote: false
+    can_execute_shell: false
+    can_edit_config: true
+  viewer:
+    can_promote: false
+    can_execute_shell: false
+    can_edit_config: false
+dangerous_actions_require_approval:
+  - shell.execute
+  - self_update.promote
+  - memory.bulk_delete
+  - deploy.production
+

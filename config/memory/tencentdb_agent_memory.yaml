@@ -1,0 +1,15 @@
+version: 1
+enabled: true
+gateway_url: http://127.0.0.1:8420
+session_key: piepro-default
+timeout_seconds: 3
+max_results: 5
+fallback_to_local: true
+notes:
+  upstream: https://github.com/Tencent/TencentDB-Agent-Memory
+  mode: HTTP adapter for the standalone TDAI Gateway
+  endpoints:
+    - GET /health
+    - POST /capture
+    - POST /search/memories
+    - POST /search/conversations

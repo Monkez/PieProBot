@@ -1,0 +1,4 @@
+version: 1
+backend: qdrant
+collection: piepro_memory
+embedding_route: embedding

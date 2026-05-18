@@ -1,0 +1,17 @@
+version: 1
+max_subagents: 8
+heartbeat_interval_seconds: 5
+heartbeat_timeout_seconds: 30
+types:
+  - ResearchAgent
+  - CodingAgent
+  - DebugAgent
+  - BrowserAgent
+  - FileAgent
+  - DataAgent
+  - PlanningAgent
+  - TestAgent
+  - DeploymentAgent
+  - SelfUpdateAgent
+  - MemoryAgent
+

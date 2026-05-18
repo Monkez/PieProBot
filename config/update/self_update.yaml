@@ -1,0 +1,7 @@
+version: 1
+bodies_root: runtime/bodies
+require_tests_before_promote: true
+require_health_before_promote: true
+keep_backups: 2
+candidate_start_port: 18080
+

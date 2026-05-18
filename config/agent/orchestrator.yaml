@@ -1,0 +1,6 @@
+version: 1
+id: orch_local
+max_active_tasks: 32
+planning_model_route: planner
+default_timeout_seconds: 120
+

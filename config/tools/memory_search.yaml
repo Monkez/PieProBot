@@ -1,0 +1,26 @@
+version: 1
+name: memory.search
+description: Search short and long term memory
+category: memory
+enabled: true
+input_schema:
+  type: object
+  properties:
+    query:
+      type: string
+    limit:
+      type: integer
+  required:
+    - query
+output_schema:
+  type: object
+permissions:
+  memory: true
+timeout_seconds: 5
+retry_policy:
+  max_retries: 0
+  backoff: none
+sandbox_policy: {}
+rate_limit: {}
+audit_level: standard
+

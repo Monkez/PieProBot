@@ -1,0 +1,14 @@
+version: 1
+format: json
+level: INFO
+redact_secrets: true
+logs:
+  - orchestrator.log
+  - subagents.log
+  - tools.log
+  - providers.log
+  - memory.log
+  - self_update.log
+  - security.log
+  - api.log
+

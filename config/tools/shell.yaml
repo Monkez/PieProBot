@@ -1,0 +1,29 @@
+version: 1
+name: shell
+description: Sandboxed shell command runner, disabled by default
+category: shell
+enabled: false
+input_schema:
+  type: object
+  properties:
+    command:
+      type: string
+    allowlist:
+      type: array
+      items:
+        type: string
+  required:
+    - command
+output_schema:
+  type: object
+permissions:
+  shell: true
+timeout_seconds: 5
+retry_policy:
+  max_retries: 0
+  backoff: none
+sandbox_policy:
+  allowlist_required: true
+rate_limit: {}
+audit_level: full
+

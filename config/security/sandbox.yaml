@@ -1,0 +1,15 @@
+version: 1
+workspace_root: .
+block_secret_files: true
+blocked_names:
+  - .env
+  - id_rsa
+  - private.key
+shell:
+  enabled: false
+  default_timeout_seconds: 5
+  allowlist:
+    - git
+    - python
+    - pytest
+

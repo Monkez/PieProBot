@@ -1,0 +1,8 @@
+version: 1
+backend: postgres
+privacy_default: internal
+min_importance: 0.5
+compaction:
+  enabled: true
+  schedule: hourly
+

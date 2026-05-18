@@ -1,0 +1,6 @@
+version: 1
+name: anthropic
+enabled: false
+api_key_env: ANTHROPIC_API_KEY
+default_model: claude-3-7-sonnet-latest
+
