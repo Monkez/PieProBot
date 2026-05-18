@@ -31,7 +31,7 @@ piepro stop
 piepro use E:\SideProjects\PiePro
 ```
 
-`piepro start` uses the current terminal only and launches backend/frontend as background child processes. It opens the frontend when ready unless `--no-open` is used.
+`piepro start` uses the current terminal only and launches backend/frontend as background child processes without opening extra terminal windows. It opens the frontend browser when ready unless `--no-open` is used.
 
 Use `piepro use <path>` to change the default project root without setting `PIEPRO_HOME` or passing `--root`.
 
@@ -51,7 +51,7 @@ Use `piepro use <path>` to change the default project root without setting `PIEP
 
 ## Troubleshooting
 
-On Windows, a dev server can occasionally outlive or replace the wrapper PID stored in `runtime/piepro.pid.json`. `piepro status` treats a healthy HTTP endpoint as running even if the original PID is stale. Frontend status uses a longer HTTP timeout because Next.js dev pages may take a few seconds to respond after rebuilds. Use `piepro restart --force` to refresh PID state.
+On Windows, PiePro starts child processes with `CREATE_NO_WINDOW` to avoid extra terminal windows. A dev server can occasionally outlive or replace the wrapper PID stored in `runtime/piepro.pid.json`. `piepro status` treats a healthy HTTP endpoint as running even if the original PID is stale. Frontend status uses a longer HTTP timeout because Next.js dev pages may take a few seconds to respond after rebuilds. Use `piepro restart --force` to refresh PID state.
 
 If `piepro status` shows a stale process, run:
 

@@ -15,8 +15,8 @@ PiePro uses a soft-modern productivity dashboard aesthetic.
 ## Layout
 
 - Main UI sits inside a large rounded framed workspace.
-- Left navigation is a vertical black pill with stacked circular icon buttons.
-- Top navigation is a floating rounded bar with pill links.
+- Navigation lives in a floating rounded topbar with pill links.
+- Do not add a separate sidebar unless the user explicitly asks for it.
 - Dashboard uses a modular multi-widget grid with asymmetrical but balanced sections.
 - Cards should have generous internal spacing and clear visual hierarchy.
 
@@ -59,7 +59,7 @@ Avoid:
 ## Implementation Notes
 
 - Shared shell is in `frontend/app/layout.tsx`.
-- Sidebar/topbar are in `frontend/components/nav.tsx`.
+- Topbar navigation is in `frontend/components/nav.tsx`.
 - Shared cards, pills, progress bars, and avatars are in `frontend/components/card.tsx`.
 - Dashboard widgets are in `frontend/app/dashboard/page.tsx`.
 

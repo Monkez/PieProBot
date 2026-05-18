@@ -16,7 +16,7 @@ piepro start
 
 `piepro init` clones the project and saves it as the default PiePro root. After that, `piepro start`, `piepro status`, and `piepro restart` work from any directory.
 
-`piepro start` starts backend and frontend from one terminal command, keeps service logs under `logs/`, and opens the frontend automatically.
+`piepro start` starts backend and frontend from one terminal command, avoids extra terminal windows, keeps service logs under `logs/`, and opens the frontend automatically.
 
 If you already cloned the repository:
 

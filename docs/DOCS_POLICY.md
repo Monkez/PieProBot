@@ -18,6 +18,7 @@ Update docs in the same change when modifying:
 - Frontend workflows.
 - Frontend visual system or component style.
 - Dashboard information architecture or removal/addition of major widgets.
+- Navigation placement such as topbar/sidebar changes.
 - Operational troubleshooting.
 
 ## Source of Truth

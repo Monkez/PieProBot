@@ -266,7 +266,7 @@ def spawn(command: list[str], cwd: Path, env: dict[str, str], log_path: Path) ->
     creationflags = 0
     start_new_session = False
     if os.name == "nt":
-        creationflags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS  # type: ignore[attr-defined]
+        creationflags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW  # type: ignore[attr-defined]
     else:
         start_new_session = True
     return subprocess.Popen(
