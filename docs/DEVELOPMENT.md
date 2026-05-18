@@ -27,11 +27,12 @@ uv pip install --python .\.venv\Scripts\python.exe -e ".[test]"
 
 1. `--root`.
 2. `PIEPRO_HOME`.
-3. Saved user config at `~/.piepro/config.json`.
-4. Current directory and parents.
-5. Installed package parents.
+3. Saved user config at `~/.piepro/.runtime/user_config.json`.
+4. Default project root at `~/.piepro`.
+5. Current directory and parents.
+6. Installed package parents.
 
-`piepro init` and `piepro use` update the saved user config.
+`piepro start` auto-runs the default bootstrap when no root is found, installing the full source tree into `~/.piepro` by default, including `config/`. On Windows for the current user this maps to `C:\Users\tiend\.piepro`. `piepro init` performs the same bootstrap explicitly, and `piepro init`/`piepro use` update the saved user config.
 
 Status checks prefer live HTTP health over PID liveness because Windows dev-server wrappers can exit while the actual server process keeps serving.
 

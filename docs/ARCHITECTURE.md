@@ -25,7 +25,7 @@ Path: `frontend`
 
 Next.js admin console with pages for dashboard, chat, tasks, subagents, tools, providers, memory, self-update, logs, and config.
 
-The shared UI shell uses a soft-modern productivity dashboard aesthetic: sage background, thick rounded frame, floating top navigation, black pill sidebar, pastel cards, rounded widgets, and soft shadows.
+The shared UI shell uses a bright minimal fintech dashboard aesthetic: white and soft-gray surfaces, rounded frame, floating top navigation, blue primary accents, warm yellow/orange highlights, rounded widgets, and subtle neumorphic shadows. Navigation remains topbar-only unless explicitly changed.
 
 ### CLI
 
@@ -38,6 +38,8 @@ The `piepro` CLI manages local processes without Docker:
 - `piepro status`
 - `piepro restart`
 - `piepro stop`
+
+For uv tool installs, `piepro start` auto-bootstraps the project source and `config/` into `~/.piepro` by default when no root exists. On Windows for the current user this is `C:\Users\tiend\.piepro`. `piepro init` can be used to run the same bootstrap explicitly.
 
 ## Request Flow
 

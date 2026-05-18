@@ -10,11 +10,12 @@ Install the CLI directly from GitHub:
 
 ```powershell
 uv tool install git+https://github.com/Monkez/PieProBot.git
-piepro init PieProBot
 piepro start
 ```
 
-`piepro init` clones the project and saves it as the default PiePro root. After that, `piepro start`, `piepro status`, and `piepro restart` work from any directory.
+On the first `piepro start`, PiePro bootstraps the full project source into the default PiePro home directory if it is not already there. On Windows this is `C:\Users\tiend\.piepro`; on other systems it is `~/.piepro`. The `config/` directory is stored there with the source, and CLI runtime metadata is kept under `.runtime/`.
+
+You can also run `piepro init` explicitly before `piepro start`. After initialization, `piepro start`, `piepro status`, and `piepro restart` work from any directory. You do not need to `cd` into the repository.
 
 `piepro start` starts backend and frontend from one terminal command, avoids extra terminal windows, keeps service logs under `logs/`, and opens the frontend automatically.
 
@@ -38,7 +39,7 @@ cd ..
 ## CLI
 
 ```bash
-piepro init PieProBot
+piepro init
 piepro start
 piepro status
 piepro restart
@@ -63,6 +64,8 @@ Default URLs:
 
 Runtime files:
 
+- Default source/config root: `C:\Users\tiend\.piepro` on Windows, `~/.piepro` elsewhere
+- CLI user config: `.runtime/user_config.json`
 - PID state: `runtime/piepro.pid.json`
 - Backend log: `logs/backend.cli.log`
 - Frontend log: `logs/frontend.cli.log`
@@ -76,7 +79,7 @@ Runtime files:
 - **Memory**: local memory manager with optional TencentDB Agent Memory external backend.
 - **Self-update**: safe stable/candidate flow simulation under `runtime/bodies`.
 - **Frontend**: Next.js operations console for dashboard, chat, tasks, subagents, tools, providers, memory, self-update, logs, and config.
-- **Design system**: soft-modern pastel productivity dashboard with a sage workspace, rounded cards, thick black accents, and only operationally useful widgets.
+- **Design system**: bright minimal fintech dashboard with white/soft-gray surfaces, blue primary accents, warm yellow/orange highlights, rounded cards, subtle neumorphic shadows, and only operationally useful widgets.
 
 ## TencentDB Agent Memory
 

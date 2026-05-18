@@ -9,10 +9,10 @@
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(255, 239, 184, 0.55), transparent 34rem),
-    radial-gradient(circle at bottom right, rgba(194, 225, 255, 0.5), transparent 30rem),
-    #dfece3;
-  color: #111111;
+    radial-gradient(circle at top left, rgba(45, 140, 255, 0.12), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(255, 184, 77, 0.16), transparent 30rem),
+    #f3f5f8;
+  color: #30343b;
   font-family: "Arial Rounded MT Bold", "Nunito", "Inter", ui-rounded, system-ui, sans-serif;
 }
 
@@ -27,18 +27,18 @@ textarea {
 }
 
 ::selection {
-  background: #ffd6df;
-  color: #111111;
+  background: #dcecff;
+  color: #1f7fe6;
 }
 
 .soft-shadow {
-  box-shadow: 0 16px 35px rgba(20, 29, 24, 0.08), inset 0 -1px 0 rgba(255, 255, 255, 0.65);
+  box-shadow: 0 18px 40px rgba(37, 46, 63, 0.08), inset 0 -1px 0 rgba(255, 255, 255, 0.75);
 }
 
 .lifted-shadow {
-  box-shadow: 0 22px 45px rgba(12, 21, 16, 0.12), 0 6px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: 0 24px 55px rgba(38, 47, 65, 0.11);
 }
 
 .playful-outline {
-  border: 2px solid rgba(17, 17, 17, 0.88);
+  border: 1px solid rgba(214, 220, 230, 0.9);
 }

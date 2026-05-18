@@ -12,7 +12,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <div className="min-h-screen p-3 sm:p-5">
-          <div className="playful-outline lifted-shadow mx-auto min-h-[calc(100vh-2.5rem)] max-w-[1500px] rounded-[32px] bg-[#e8f2e9] p-4 sm:p-7">
+          <div className="playful-outline lifted-shadow mx-auto min-h-[calc(100vh-2.5rem)] max-w-[1500px] rounded-[32px] bg-[#fbfcfe] p-4 sm:p-7">
             <TopBar />
             <main className="min-w-0">{children}</main>
           </div>

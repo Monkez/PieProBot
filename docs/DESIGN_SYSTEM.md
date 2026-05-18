@@ -1,16 +1,17 @@
 # Design System
 
-PiePro uses a soft-modern productivity dashboard aesthetic.
+PiePro uses a bright minimal fintech dashboard aesthetic.
 
 ## Visual Identity
 
-- Soft sage green application background.
-- Large rounded shell with a thick black outline.
-- Off-white panels with pastel yellow, baby blue, blush pink, sage, and light gray accents.
+- Soft white/light-gray application background.
+- Large rounded shell with a light border and soft shadow.
+- White and soft-gray panels with primary blue, warm yellow/orange, and light pastel support accents.
 - Rounded geometry everywhere, typically 20-32px radius.
-- Thick black accents used selectively for active controls, icon rails, and high-contrast buttons.
+- Blue is the primary action and active-control color.
+- Warm yellow/orange is used for highlights and secondary calls to action.
 - Soft neumorphic shadows and subtle depth.
-- Playful but still professional workspace mood.
+- Calm, polished, premium SaaS mood.
 
 ## Layout
 
@@ -24,20 +25,22 @@ PiePro uses a soft-modern productivity dashboard aesthetic.
 
 Preferred components:
 
-- Rounded pastel cards.
+- Rounded white and light-gray cards.
 - Rounded pills and capsules.
 - Chunky circular icon buttons.
-- Cute progress bars.
-- Avatar stacks with soft colors.
+- Smooth progress bars.
+- Avatar stacks with blue/yellow/orange/green accents.
 - Rounded toggles and segmented controls.
 - Operational status cards for runtime, tasks, memory, tools, providers, and self-update.
 
 ## Palette
 
-- Background: soft sage green.
-- Surfaces: off-white and light gray.
-- Accents: pastel yellow, baby blue, blush pink, gentle violet, muted green.
-- Contrast: black and near-black only for important controls.
+- Background: soft white and light gray.
+- Surfaces: white and soft gray.
+- Primary accent: `#2D8CFF`.
+- Warm accent: yellow/orange around `#FFC247`.
+- Supporting accents: soft green, light blue, soft coral.
+- Text: near-black gray, with muted gray supporting text.
 
 Avoid:
 
@@ -45,7 +48,7 @@ Avoid:
 - Sharp enterprise tables.
 - Oversaturated colors.
 - Dense gray admin dashboards.
-- Flat black backgrounds except for accent pills/rails/cards.
+- Heavy black accents or dark-mode styling.
 - Decorative widgets that do not serve PiePro operations.
 - Filling the dashboard with fake productivity modules just to match the style.
 

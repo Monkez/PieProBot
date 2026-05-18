@@ -4,11 +4,14 @@
 
 ```powershell
 uv tool install git+https://github.com/Monkez/PieProBot.git
-piepro init PieProBot
 piepro start
 ```
 
-`piepro init` saves the cloned path as the default PiePro root in the user config file at `~/.piepro/config.json`. After initialization, `piepro start`, `piepro status`, `piepro restart`, and `piepro stop` can be run from any directory.
+On the first `piepro start`, PiePro installs the full source tree into the default PiePro home directory if it is missing. On Windows this is `C:\Users\tiend\.piepro`; on other systems it is `~/.piepro`. The runtime config directory lives at `C:\Users\tiend\.piepro\config` on Windows.
+
+You can run `piepro init` explicitly if you want to bootstrap the source before starting services.
+
+CLI metadata is stored under `.runtime/user_config.json` inside the PiePro home directory. After initialization, `piepro start`, `piepro status`, `piepro restart`, and `piepro stop` can be run from any directory without passing `--root`.
 
 ## Local Editable Install
 
@@ -34,6 +37,8 @@ piepro use E:\SideProjects\PiePro
 `piepro start` uses the current terminal only and launches backend/frontend as background child processes without opening extra terminal windows. It opens the frontend browser when ready unless `--no-open` is used.
 
 Use `piepro use <path>` to change the default project root without setting `PIEPRO_HOME` or passing `--root`.
+
+Root resolution order is `--root`, `PIEPRO_HOME`, saved CLI metadata, the default PiePro home directory, current directory/parents, then installed package parents.
 
 ## Ports
 

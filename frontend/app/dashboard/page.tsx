@@ -1,6 +1,6 @@
 import { AvatarStack, Card, Pill, ProgressBar, Stat } from "@/components/card";
 import { apiGet } from "@/lib/api";
-import { Bot, Brain, CheckCircle2, Clock3, MessageCircle, MoreVertical, Plus, Server, ShieldCheck, Sparkles } from "lucide-react";
+import { Bot, Brain, CheckCircle2, Clock3, MessageCircle, Plus, Server, ShieldCheck, Sparkles } from "lucide-react";
 
 async function load() {
   const [health, ready, metrics, tasks, subagents, tools, providers, memory, updates] = await Promise.all([
@@ -18,12 +18,12 @@ async function load() {
 }
 
 const statusTone = {
-  completed: "bg-[#dff0df]",
-  running: "bg-[#d4ebff]",
-  pending: "bg-[#ffeeb8]",
-  failed: "bg-[#ffd7d7]",
-  cancelled: "bg-[#ecece7]",
-  paused: "bg-[#ecece7]"
+  completed: "bg-[#e8f8f2]",
+  running: "bg-[#eaf4ff]",
+  pending: "bg-[#fff4d9]",
+  failed: "bg-[#fff0ea]",
+  cancelled: "bg-[#f5f7fa]",
+  paused: "bg-[#f5f7fa]"
 };
 const activityCards = [
   { name: "Runtime", message: "Backend and frontend are managed by piepro CLI.", Icon: CheckCircle2 },
@@ -51,10 +51,10 @@ export default async function DashboardPage() {
         <Card title="Runtime Overview" className="min-h-[260px]">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className="grid h-16 w-16 place-items-center rounded-full border-4 border-white bg-[#c9b1ff] text-2xl font-black">P</div>
+              <div className="grid h-16 w-16 place-items-center rounded-full border-4 border-white bg-[#2D8CFF] text-2xl font-black text-white shadow-[0_14px_28px_rgba(45,140,255,0.24)]">P</div>
               <div>
-                <div className="text-2xl font-black">PiePro</div>
-                <div className="text-sm font-bold text-black/55">Local agent runtime</div>
+                <div className="text-2xl font-black text-[#30343b]">PiePro</div>
+                <div className="text-sm font-bold text-[#8c96a6]">Local agent runtime</div>
               </div>
             </div>
             <Pill dark>{data.health.status}</Pill>
@@ -65,12 +65,12 @@ export default async function DashboardPage() {
             <Pill>{activeProviders} active provider</Pill>
             <Pill>{data.updates.candidates?.length ?? 0} candidates</Pill>
           </div>
-          <div className="mt-8 rounded-[22px] border border-black/10 bg-[#f6f7f1] p-4">
-            <div className="mb-2 flex items-center justify-between text-sm font-black">
+          <div className="mt-8 rounded-[22px] border border-[#e4e9f0] bg-[#f6f8fb] p-4">
+            <div className="mb-2 flex items-center justify-between text-sm font-black text-[#30343b]">
               <span>System readiness</span>
               <span>{data.health.status === "ok" ? "100%" : "35%"}</span>
             </div>
-            <ProgressBar value={data.health.status === "ok" ? 100 : 35} color="#111111" />
+            <ProgressBar value={data.health.status === "ok" ? 100 : 35} />
           </div>
         </Card>
 
@@ -78,32 +78,32 @@ export default async function DashboardPage() {
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <Pill dark>Workspace pulse</Pill>
             <div className="flex gap-2">
-              <button className="grid h-11 w-11 place-items-center rounded-full bg-white/80 soft-shadow" aria-label="Create task">
+              <button className="grid h-11 w-11 place-items-center rounded-full bg-white text-[#2D8CFF] soft-shadow" aria-label="Create task">
                 <Plus size={18} />
               </button>
-              <button className="grid h-11 w-11 place-items-center rounded-full bg-black text-white" aria-label="Smart action">
+              <button className="grid h-11 w-11 place-items-center rounded-full bg-[#ffc247] text-white shadow-[0_12px_24px_rgba(255,194,71,0.24)]" aria-label="Smart action">
                 <Sparkles size={18} />
               </button>
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-[24px] border border-black/10 bg-[#ffeeb8] p-5">
-              <Server className="mb-5" size={24} />
-              <div className="text-xl font-black">Backend</div>
-              <div className="mt-1 text-sm font-bold text-black/55">FastAPI orchestration runtime</div>
-              <div className="mt-5"><ProgressBar value={data.health.status === "ok" ? 100 : 35} color="#f0bb2f" /></div>
+            <div className="rounded-[24px] border border-[#e4e9f0] bg-[#fff4d9] p-5">
+              <Server className="mb-5 text-[#ff9f1c]" size={24} />
+              <div className="text-xl font-black text-[#30343b]">Backend</div>
+              <div className="mt-1 text-sm font-bold text-[#8c96a6]">FastAPI orchestration runtime</div>
+              <div className="mt-5"><ProgressBar value={data.health.status === "ok" ? 100 : 35} color="#ffc247" /></div>
             </div>
-            <div className="rounded-[24px] border border-black/10 bg-[#d4ebff] p-5">
-              <Bot className="mb-5" size={24} />
-              <div className="text-xl font-black">Subagents</div>
-              <div className="mt-1 text-sm font-bold text-black/55">{activeSubagents} active workers</div>
-              <div className="mt-5"><ProgressBar value={Math.min(activeSubagents * 20, 100)} color="#78bdf8" /></div>
+            <div className="rounded-[24px] border border-[#e4e9f0] bg-[#eaf4ff] p-5">
+              <Bot className="mb-5 text-[#2D8CFF]" size={24} />
+              <div className="text-xl font-black text-[#30343b]">Subagents</div>
+              <div className="mt-1 text-sm font-bold text-[#8c96a6]">{activeSubagents} active workers</div>
+              <div className="mt-5"><ProgressBar value={Math.min(activeSubagents * 20, 100)} /></div>
             </div>
-            <div className="rounded-[24px] border border-black/10 bg-[#ffd7d7] p-5">
-              <Brain className="mb-5" size={24} />
-              <div className="text-xl font-black">Memory</div>
-              <div className="mt-1 text-sm font-bold text-black/55">{memory.local_items ?? 0} local items</div>
-              <div className="mt-5"><ProgressBar value={memory.external_healthy ? 100 : 55} color="#fb858f" /></div>
+            <div className="rounded-[24px] border border-[#e4e9f0] bg-[#fff0ea] p-5">
+              <Brain className="mb-5 text-[#ff8a61]" size={24} />
+              <div className="text-xl font-black text-[#30343b]">Memory</div>
+              <div className="mt-1 text-sm font-bold text-[#8c96a6]">{memory.local_items ?? 0} local items</div>
+              <div className="mt-5"><ProgressBar value={memory.external_healthy ? 100 : 55} color="#ff8a61" /></div>
             </div>
           </div>
         </Card>
@@ -121,20 +121,20 @@ export default async function DashboardPage() {
         <Card title="Task Queue">
           <div className="space-y-3">
             {recentTasks.length === 0 ? (
-              <div className="rounded-[24px] border border-black/10 bg-[#f6f7f1] p-6 text-sm font-bold text-black/55">No tasks yet. Send a message from Chat Console to create one.</div>
+              <div className="rounded-[24px] border border-[#e4e9f0] bg-[#f6f8fb] p-6 text-sm font-bold text-[#8c96a6]">No tasks yet. Send a message from Chat Console to create one.</div>
             ) : (
               recentTasks.map((task) => (
-                <div key={task.id} className={`rounded-[24px] border border-black/10 p-4 ${statusTone[task.status as keyof typeof statusTone] ?? "bg-white/70"}`}>
+                <div key={task.id} className={`rounded-[24px] border border-[#e4e9f0] p-4 ${statusTone[task.status as keyof typeof statusTone] ?? "bg-white/80"}`}>
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="text-lg font-black">{task.message}</div>
-                      <div className="mt-1 text-xs font-black text-black/45">{task.id}</div>
+                      <div className="mt-1 text-xs font-black text-[#9aa3af]">{task.id}</div>
                     </div>
                     <Pill>{task.status}</Pill>
                   </div>
                   <div className="mt-4 flex items-center justify-between">
                     <AvatarStack names={(task.assigned_subagents ?? []).length ? task.assigned_subagents : ["P"]} />
-                    <div className="text-sm font-black text-black/55">{task.assigned_subagents?.length ?? 0} subagents</div>
+                    <div className="text-sm font-black text-[#8c96a6]">{task.assigned_subagents?.length ?? 0} subagents</div>
                   </div>
                 </div>
               ))
@@ -145,20 +145,20 @@ export default async function DashboardPage() {
         <Card title="Provider & Tool Health">
           <div className="space-y-3">
             {data.providers.map((provider) => (
-              <div key={provider.name} className={`flex items-center justify-between rounded-[22px] border border-black/10 p-4 ${provider.active ? "bg-[#dff0df]" : "bg-white/70"}`}>
+              <div key={provider.name} className={`flex items-center justify-between rounded-[22px] border border-[#e4e9f0] p-4 ${provider.active ? "bg-[#e8f8f2]" : "bg-white/80"}`}>
                 <div>
-                  <div className="font-black">{provider.name}</div>
-                  <div className="text-sm font-bold text-black/50">{provider.active ? "active" : "configured"}</div>
+                  <div className="font-black text-[#30343b]">{provider.name}</div>
+                  <div className="text-sm font-bold text-[#8c96a6]">{provider.active ? "active" : "configured"}</div>
                 </div>
-                <span className={`h-4 w-4 rounded-full ${provider.healthy ? "bg-[#6bd17f]" : "bg-[#d0d0cb]"}`} />
+                <span className={`h-4 w-4 rounded-full ${provider.healthy ? "bg-[#23c48e]" : "bg-[#cfd6df]"}`} />
               </div>
             ))}
-            <div className="rounded-[22px] bg-black p-4 text-white">
+            <div className="rounded-[22px] bg-[#2D8CFF] p-4 text-white shadow-[0_14px_30px_rgba(45,140,255,0.22)]">
               <div className="flex items-center gap-2 font-black">
                 <ShieldCheck size={18} />
                 Tool permissions
               </div>
-              <div className="mt-2 text-sm font-bold text-white/65">{enabledTools} tools enabled, shell remains disabled by default.</div>
+              <div className="mt-2 text-sm font-bold text-white/75">{enabledTools} tools enabled, shell remains disabled by default.</div>
             </div>
           </div>
         </Card>
@@ -167,15 +167,15 @@ export default async function DashboardPage() {
       <section className="grid gap-4 xl:grid-cols-3">
         <Card title="Memory Status">
           <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-[22px] bg-white/70 p-4">
-              <span className="font-black">External backend</span>
+            <div className="flex items-center justify-between rounded-[22px] bg-[#f6f8fb] p-4">
+              <span className="font-black text-[#30343b]">External backend</span>
               <Pill>{memoryLabel}</Pill>
             </div>
-            <div className="flex items-center justify-between rounded-[22px] bg-white/70 p-4">
-              <span className="font-black">Local items</span>
-              <span className="text-2xl font-black">{memory.local_items ?? 0}</span>
+            <div className="flex items-center justify-between rounded-[22px] bg-[#f6f8fb] p-4">
+              <span className="font-black text-[#30343b]">Local items</span>
+              <span className="text-2xl font-black text-[#30343b]">{memory.local_items ?? 0}</span>
             </div>
-            <div className="rounded-[22px] bg-[#d4ebff] p-4 text-sm font-bold text-black/65">
+            <div className="rounded-[22px] bg-[#eaf4ff] p-4 text-sm font-bold text-[#667085]">
               TencentDB Agent Memory can be offline; PiePro keeps local fallback active.
             </div>
           </div>
@@ -183,20 +183,20 @@ export default async function DashboardPage() {
 
         <Card title="Self-Update">
           <div className="space-y-3">
-            <div className="rounded-[22px] bg-[#ffeeb8] p-4">
-              <div className="flex items-center gap-2 font-black">
+            <div className="rounded-[22px] bg-[#fff4d9] p-4">
+              <div className="flex items-center gap-2 font-black text-[#30343b]">
                 <Clock3 size={18} />
                 Candidate flow
               </div>
-              <div className="mt-2 text-sm font-bold text-black/55">Plan, copy, test, healthcheck, promote, rollback.</div>
+              <div className="mt-2 text-sm font-bold text-[#8c96a6]">Plan, copy, test, healthcheck, promote, rollback.</div>
             </div>
-            <div className="flex items-center justify-between rounded-[22px] bg-white/70 p-4">
-              <span className="font-black">Candidates</span>
-              <span className="text-2xl font-black">{data.updates.candidates?.length ?? 0}</span>
+            <div className="flex items-center justify-between rounded-[22px] bg-[#f6f8fb] p-4">
+              <span className="font-black text-[#30343b]">Candidates</span>
+              <span className="text-2xl font-black text-[#30343b]">{data.updates.candidates?.length ?? 0}</span>
             </div>
-            <div className="flex items-center justify-between rounded-[22px] bg-white/70 p-4">
-              <span className="font-black">History</span>
-              <span className="text-2xl font-black">{data.updates.history?.length ?? 0}</span>
+            <div className="flex items-center justify-between rounded-[22px] bg-[#f6f8fb] p-4">
+              <span className="font-black text-[#30343b]">History</span>
+              <span className="text-2xl font-black text-[#30343b]">{data.updates.history?.length ?? 0}</span>
             </div>
           </div>
         </Card>
@@ -204,7 +204,7 @@ export default async function DashboardPage() {
         <Card title="Recent Activity">
           <div className="space-y-3">
             {activityCards.map(({ name, message, Icon }, index) => (
-              <div key={name} className={`flex items-center gap-3 rounded-[22px] border border-black/10 p-4 ${index === 0 ? "bg-black text-white" : "bg-white/70 text-black"}`}>
+              <div key={name} className={`flex items-center gap-3 rounded-[22px] border border-[#e4e9f0] p-4 ${index === 0 ? "bg-[#2D8CFF] text-white shadow-[0_14px_30px_rgba(45,140,255,0.22)]" : "bg-white/80 text-[#30343b]"}`}>
                 <Icon size={20} />
                 <div>
                   <div className="font-black">{name}</div>

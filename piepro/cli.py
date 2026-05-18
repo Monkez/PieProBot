@@ -18,7 +18,9 @@ from urllib.parse import urlparse
 
 PID_FILE_NAME = "piepro.pid.json"
 DEFAULT_REPOSITORY_URL = "https://github.com/Monkez/PieProBot.git"
-USER_CONFIG_FILE = Path.home() / ".piepro" / "config.json"
+DEFAULT_PROJECT_ROOT = Path.home() / ".piepro"
+USER_CONFIG_FILE = DEFAULT_PROJECT_ROOT / ".runtime" / "user_config.json"
+LEGACY_USER_CONFIG_FILE = DEFAULT_PROJECT_ROOT / "config.json"
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -71,7 +73,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("status", help="Show service PID and health status.")
 
     init_parser = sub.add_parser("init", help="Clone the PiePro project files for uv tool installs.")
-    init_parser.add_argument("path", nargs="?", default="PieProBot", help="Target directory.")
+    init_parser.add_argument("path", nargs="?", default=None, help=f"Target directory. Defaults to {DEFAULT_PROJECT_ROOT}.")
     init_parser.add_argument("--repo", default=DEFAULT_REPOSITORY_URL, help="Repository URL to clone.")
 
     use_parser = sub.add_parser("use", help="Set the default PiePro project root.")
@@ -79,7 +81,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def resolve_root(raw_root: str | None = None) -> Path:
+def resolve_root(raw_root: str | None = None, *, auto_init: bool = False) -> Path:
     candidates: list[Path] = []
     if raw_root:
         candidates.append(Path(raw_root))
@@ -88,6 +90,7 @@ def resolve_root(raw_root: str | None = None) -> Path:
     saved_root = read_user_config().get("default_root")
     if saved_root:
         candidates.append(Path(str(saved_root)))
+    candidates.append(DEFAULT_PROJECT_ROOT)
     candidates.append(Path.cwd())
     candidates.extend(Path.cwd().parents)
     package_root = Path(__file__).resolve().parents[1]
@@ -96,9 +99,17 @@ def resolve_root(raw_root: str | None = None) -> Path:
 
     for candidate in candidates:
         resolved = candidate.resolve()
-        if (resolved / "backend" / "app" / "main.py").exists() and (resolved / "config").exists():
+        if is_project_root(resolved):
             return resolved
-    raise SystemExit("Could not find PiePro project root. Run from the repo or pass --root PATH.")
+    if auto_init and not raw_root and not os.getenv("PIEPRO_HOME"):
+        init_project(argparse.Namespace(path=None, repo=DEFAULT_REPOSITORY_URL))
+        if is_project_root(DEFAULT_PROJECT_ROOT.resolve()):
+            return DEFAULT_PROJECT_ROOT.resolve()
+    raise SystemExit(f"Could not find PiePro project root. Run `piepro init` to install the source into {DEFAULT_PROJECT_ROOT}.")
+
+
+def is_project_root(path: Path) -> bool:
+    return (path / "backend" / "app" / "main.py").exists() and (path / "config").exists()
 
 
 def runtime_paths(root: Path) -> tuple[Path, Path, Path]:
@@ -110,7 +121,7 @@ def runtime_paths(root: Path) -> tuple[Path, Path, Path]:
 
 
 def start(args: argparse.Namespace) -> int:
-    root = resolve_root(args.root)
+    root = resolve_root(args.root, auto_init=True)
     _, logs, pid_file = runtime_paths(root)
     state = read_state(pid_file)
 
@@ -184,19 +195,43 @@ def start(args: argparse.Namespace) -> int:
 
 
 def init_project(args: argparse.Namespace) -> int:
-    target = Path(args.path).resolve()
-    if target.exists() and any(target.iterdir()):
-        raise SystemExit(f"Target directory is not empty: {target}")
+    target = Path(args.path).expanduser().resolve() if args.path else DEFAULT_PROJECT_ROOT.resolve()
+    if is_project_root(target):
+        write_user_config({"default_root": str(target)})
+        print(f"PiePro project already initialized at {target}")
+        print("Default PiePro root saved. You can now run `piepro start` from any directory.")
+        return 0
     if not shutil.which("git"):
         raise SystemExit("git is required for piepro init")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["git", "clone", args.repo, str(target)], check=True)
+    clone_project(args.repo, target)
     write_user_config({"default_root": str(target)})
     print(f"PiePro project initialized at {target}")
     print("Default PiePro root saved. You can now run `piepro start` from any directory.")
     print("Next:")
     print("  piepro start")
     return 0
+
+
+def clone_project(repo: str, target: Path) -> None:
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.exists() or not any(target.iterdir()):
+        subprocess.run(["git", "clone", repo, str(target)], check=True)
+        return
+
+    if target != DEFAULT_PROJECT_ROOT.resolve() or not can_overlay_default_root(target):
+        raise SystemExit(f"Target directory is not empty: {target}")
+
+    temp_target = target.parent / f"{target.name}.download-{int(time.time())}"
+    subprocess.run(["git", "clone", repo, str(temp_target)], check=True)
+    try:
+        shutil.copytree(temp_target, target, dirs_exist_ok=True)
+    finally:
+        shutil.rmtree(temp_target, ignore_errors=True)
+
+
+def can_overlay_default_root(target: Path) -> bool:
+    allowed_names = {"config.json", ".runtime"}
+    return all(item.name in allowed_names for item in target.iterdir())
 
 
 def use_project(args: argparse.Namespace) -> int:
@@ -336,12 +371,16 @@ def write_state(pid_file: Path, state: dict[str, Any]) -> None:
 
 
 def read_user_config() -> dict[str, Any]:
-    if not USER_CONFIG_FILE.exists():
-        return {}
-    try:
-        return json.loads(USER_CONFIG_FILE.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return {}
+    for path in (USER_CONFIG_FILE, LEGACY_USER_CONFIG_FILE):
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        if isinstance(data, dict):
+            return data
+    return {}
 
 
 def write_user_config(patch: dict[str, Any]) -> None:
