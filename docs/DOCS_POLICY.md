@@ -7,6 +7,7 @@ PiePro documentation is part of the system contract and bot self-knowledge.
 Update docs in the same change when modifying:
 
 - CLI commands or install flow.
+- CLI root resolution or process management behavior.
 - API endpoints.
 - Config file shape.
 - Memory behavior.
@@ -30,4 +31,3 @@ Update docs in the same change when modifying:
 ## Rule for Agents
 
 When PiePro or a developer changes behavior, the same task is incomplete until the relevant documentation is updated.
-

@@ -21,6 +21,20 @@ npm audit --audit-level=moderate
 uv pip install --python .\.venv\Scripts\python.exe -e ".[test]"
 ```
 
+## CLI Root Resolution
+
+`piepro` resolves the project root in this order:
+
+1. `--root`.
+2. `PIEPRO_HOME`.
+3. Saved user config at `~/.piepro/config.json`.
+4. Current directory and parents.
+5. Installed package parents.
+
+`piepro init` and `piepro use` update the saved user config.
+
+Status checks prefer live HTTP health over PID liveness because Windows dev-server wrappers can exit while the actual server process keeps serving.
+
 ## Change Checklist
 
 For every code change:
@@ -34,4 +48,3 @@ For every code change:
 ## Naming
 
 The canonical bot/product name is **PiePro**. Do not introduce new user-facing names unless explicitly approved.
-

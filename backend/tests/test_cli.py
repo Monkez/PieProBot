@@ -11,6 +11,7 @@ def test_cli_parser_supports_process_commands() -> None:
     assert parser.parse_args(["restart"]).command == "restart"
     assert parser.parse_args(["status"]).command == "status"
     assert parser.parse_args(["init", "PieProBot"]).command == "init"
+    assert parser.parse_args(["use", "."]).command == "use"
     assert parser.parse_args(["start", "--no-open"]).no_open is True
 
 

@@ -11,9 +11,10 @@ Install the CLI directly from GitHub:
 ```powershell
 uv tool install git+https://github.com/Monkez/PieProBot.git
 piepro init PieProBot
-cd PieProBot
 piepro start
 ```
+
+`piepro init` clones the project and saves it as the default PiePro root. After that, `piepro start`, `piepro status`, and `piepro restart` work from any directory.
 
 `piepro start` starts backend and frontend from one terminal command, keeps service logs under `logs/`, and opens the frontend automatically.
 
@@ -42,6 +43,7 @@ piepro start
 piepro status
 piepro restart
 piepro stop
+piepro use E:\SideProjects\PiePro
 ```
 
 Useful options:
@@ -142,4 +144,3 @@ Start here:
 - TencentDB Agent Memory is optional and accessed via external gateway.
 - Self-update candidate startup is simulated; promotion safety checks exist but do not yet switch live traffic.
 - Frontend is operational but intentionally minimal.
-

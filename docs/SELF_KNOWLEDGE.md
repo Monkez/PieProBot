@@ -8,6 +8,7 @@ This document is the compact self-description PiePro should use to understand it
 - Repository: `https://github.com/Monkez/PieProBot.git`
 - Primary install method: `uv tool install git+https://github.com/Monkez/PieProBot.git`
 - Local command: `piepro`
+- `piepro init` saves a default project root so commands can run from any directory.
 
 ## Runtime Facts
 
@@ -17,6 +18,7 @@ This document is the compact self-description PiePro should use to understand it
 - State: in-memory by default
 - External memory: TencentDB Agent Memory via TDAI Gateway
 - Process manager: `piepro/cli.py`
+- User config path: `~/.piepro/config.json`
 - Docs are part of operational memory and must be kept updated.
 
 ## Invariants
@@ -35,4 +37,3 @@ This document is the compact self-description PiePro should use to understand it
 - Persistent database adapters are future work.
 - Self-update candidate start is a simulation.
 - Frontend is an operational MVP, not a full enterprise console yet.
-
