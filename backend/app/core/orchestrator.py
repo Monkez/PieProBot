@@ -36,25 +36,56 @@ class OrchestratorAgent:
         self.background_review = background_review
         self._load_persisted_tasks()
 
-    async def submit_user_message(self, message: str, priority: int = 5) -> ChatResponse:
-        task = await self.create_task(message, priority)
+    async def submit_user_message(
+        self,
+        message: str,
+        priority: int = 5,
+        attachments: list[dict[str, Any]] | None = None,
+    ) -> ChatResponse:
+        task = await self.create_task(message, priority, attachments=attachments)
         self._start_runner(task.id)
-        return ChatResponse(task_id=task.id, status=task.status, response="Task accepted and delegated.")
+        return ChatResponse(
+            task_id=task.id,
+            status=task.status,
+            response="Task accepted and delegated.",
+            attachments=attachments or [],
+        )
 
-    async def submit_user_message_and_wait(self, message: str, priority: int = 5) -> ChatResponse:
-        task = await self.create_task(message, priority)
+    async def submit_user_message_and_wait(
+        self,
+        message: str,
+        priority: int = 5,
+        attachments: list[dict[str, Any]] | None = None,
+    ) -> ChatResponse:
+        task = await self.create_task(message, priority, attachments=attachments)
         await self._run_task(task.id)
         done = self.tasks[task.id]
-        return ChatResponse(task_id=done.id, status=done.status, response=done.result or done.error or "")
+        return ChatResponse(
+            task_id=done.id,
+            status=done.status,
+            response=done.result or done.error or "",
+            attachments=attachments or [],
+        )
 
-    async def create_task(self, message: str, priority: int = 5) -> TaskRecord:
+    async def create_task(
+        self,
+        message: str,
+        priority: int = 5,
+        attachments: list[dict[str, Any]] | None = None,
+    ) -> TaskRecord:
         task = TaskRecord(message=message, priority=priority)
+        if attachments:
+            task.artifacts.append({"type": "chat_attachments", "items": attachments})
         self.tasks[task.id] = task
         self._persist_task(task)
-        self._save_message("user", message, task.id)
+        self._save_message("user", message, task.id, metadata={"attachments": attachments or []})
         self.logger.info("task created", extra={"task_id": task.id})
         await self.event_bus.publish("tasks", {"type": "task.created", "task_id": task.id})
-        await self.memory.save(MemoryItem(type="user_message", content=message, source=task.id, importance=0.4))
+        memory_content = message
+        if attachments:
+            names = ", ".join(str(item.get("original_name", item.get("name", "attachment"))) for item in attachments)
+            memory_content = f"{message}\nAttachments: {names}".strip()
+        await self.memory.save(MemoryItem(type="user_message", content=memory_content, source=task.id, importance=0.4))
         return task
 
     async def plan_task(self, task_id: str) -> TaskRecord:
@@ -221,7 +252,13 @@ class OrchestratorAgent:
         except Exception as exc:
             self.logger.warning("task persistence failed: %s", exc, extra={"task_id": task.id})
 
-    def _save_message(self, role: str, content: str, task_id: str) -> None:
+    def _save_message(
+        self,
+        role: str,
+        content: str,
+        task_id: str,
+        metadata: dict[str, Any] | None = None,
+    ) -> None:
         if not self.state_store:
             return
         try:
@@ -231,6 +268,7 @@ class OrchestratorAgent:
                 content=content,
                 task_id=task_id,
                 session_id=task_id,
+                metadata=metadata,
             )
         except Exception as exc:
             self.logger.warning("message persistence failed: %s", exc, extra={"task_id": task_id})

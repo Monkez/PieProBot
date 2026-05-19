@@ -28,6 +28,20 @@ def test_api_tools_and_memory() -> None:
         assert len(results) >= 1
 
 
+def test_chat_upload_accepts_attachments() -> None:
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/chat/upload",
+            data={"message": "review uploaded file", "wait": "true"},
+            files={"files": ("note.txt", b"hello attachment", "text/plain")},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert body["status"] == "completed"
+        assert body["attachments"][0]["original_name"] == "note.txt"
+        assert body["attachments"][0]["kind"] == "file"
+
+
 def test_admin_api_key_protects_control_plane(monkeypatch) -> None:
     monkeypatch.setenv("ADMIN_API_KEY", "test-secret")
     with TestClient(app) as client:

@@ -104,9 +104,11 @@ class SubagentRecord(BaseModel):
 class ChatRequest(BaseModel):
     message: str
     priority: int = 5
+    attachments: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class ChatResponse(BaseModel):
     task_id: str
     status: TaskStatus
     response: str
+    attachments: list[dict[str, Any]] = Field(default_factory=list)

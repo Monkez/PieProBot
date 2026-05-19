@@ -76,6 +76,7 @@ The Tools, Providers, and Channels pages expose direct controls for common field
 
 Operational pages now perform the common runtime actions directly:
 
+- Chat: send text, images, files, and browser-recorded voice notes into agent tasks.
 - Tasks: create, pause, resume, cancel, and retry.
 - Subagents: inspect status and kill active workers.
 - Tools: edit config and execute test calls.

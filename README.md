@@ -98,7 +98,7 @@ Security default:
 - **Schedules**: simple one-shot or fixed-interval scheduled prompts submit into the orchestrator.
 - **Checkpoints**: file-level checkpoints are created before filesystem writes and can be restored through the checkpoint API.
 - **Self-update**: safe stable/candidate flow simulation under `runtime/bodies`, plus a `self_update.plan` tool for gated improvement planning.
-- **Frontend**: Next.js operations console for dashboard, chat, task actions, subagent kill, tool execution, provider tests, memory CRUD/compact, self-update workflow, channels, logs, and config.
+- **Frontend**: Next.js operations console for dashboard, chat with text/image/file/voice upload, task actions, subagent kill, tool execution, provider tests, memory CRUD/compact, self-update workflow, channels, logs, and config.
 - **Design system**: bright minimal fintech dashboard with white/soft-gray surfaces, blue primary accents, warm yellow/orange highlights, rounded cards, subtle neumorphic shadows, and only operationally useful widgets.
 
 ## TencentDB Agent Memory

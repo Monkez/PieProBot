@@ -7,6 +7,14 @@ function authHeaders(): Record<string, string> {
   return apiKey ? { "x-api-key": apiKey } : {};
 }
 
+export function apiUrl(path: string): string {
+  return `${API_BASE}${path}`;
+}
+
+export function apiAuthHeaders(): Record<string, string> {
+  return authHeaders();
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, { cache: "no-store", headers: authHeaders() });
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}: ${await response.text()}`);
