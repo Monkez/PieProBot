@@ -1,7 +1,7 @@
 "use client";
 
 import { apiAuthHeaders, apiPost, apiUrl } from "@/lib/api";
-import { FileAudio, FileImage, FileText, Mic, Paperclip, Send, Square, Trash2, X } from "lucide-react";
+import { FileAudio, FileImage, FileText, Mic, Paperclip, Radio, Send, Square, Trash2, X } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 
 type Attachment = {
@@ -18,6 +18,10 @@ type ChatResult = {
   status: string;
   response: string;
   attachments?: Attachment[];
+};
+
+type StreamEvent = ChatResult & {
+  type?: "accepted" | "status" | "final" | "timeout";
 };
 
 type ChatMessage = {
@@ -66,6 +70,7 @@ export default function ChatPage() {
   ]);
   const [attachments, setAttachments] = useState<AttachmentPreview[]>([]);
   const [busy, setBusy] = useState(false);
+  const [streaming, setStreaming] = useState(true);
   const [recording, setRecording] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -148,7 +153,10 @@ export default function ChatPage() {
     setBusy(true);
     try {
       let result: ChatResult;
-      if (outgoingAttachments.length > 0) {
+      if (streaming && outgoingAttachments.length === 0) {
+        await submitStreaming(outgoingText);
+        return;
+      } else if (outgoingAttachments.length > 0) {
         const form = new FormData();
         form.append("message", outgoingText);
         form.append("priority", "5");
@@ -193,6 +201,84 @@ export default function ChatPage() {
     }
   }
 
+  async function submitStreaming(outgoingText: string) {
+    const assistantId = newId("assistant");
+    setMessages((current) => [
+      ...current,
+      {
+        id: assistantId,
+        role: "assistant",
+        content: "Connecting to stream...",
+        status: "accepted"
+      }
+    ]);
+
+    const response = await fetch(apiUrl("/api/chat/stream"), {
+      method: "POST",
+      headers: { "content-type": "application/json", ...apiAuthHeaders() },
+      body: JSON.stringify({ message: outgoingText, priority: 5 }),
+      cache: "no-store"
+    });
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}: ${await response.text()}`);
+    if (!response.body) {
+      const fallback = await apiPost<ChatResult>("/api/chat/wait", { message: outgoingText, priority: 5 });
+      updateAssistantMessage(assistantId, fallback);
+      return;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { done, value } = await reader.read();
+      buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+      const parts = buffer.split("\n\n");
+      buffer = parts.pop() || "";
+      for (const part of parts) {
+        const event = parseStreamEvent(part);
+        if (event) updateAssistantMessage(assistantId, event);
+      }
+      if (done) break;
+    }
+  }
+
+  function updateAssistantMessage(id: string, result: StreamEvent | ChatResult) {
+    const isFinal = !("type" in result) || result.type === "final" || result.type === "timeout";
+    const content = isFinal
+      ? result.response || "Completed without response."
+      : result.response || `Working... ${result.status}`;
+    setMessages((current) =>
+      current.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              content,
+              status: result.status,
+              taskId: result.task_id,
+              attachments: (result.attachments || []).map((entry) => ({
+                id: entry.id || newId("remote"),
+                file: new File([], entry.original_name, { type: entry.content_type }),
+                name: entry.original_name,
+                type: entry.content_type,
+                size: entry.size,
+                kind: entry.kind
+              }))
+            }
+          : item
+      )
+    );
+  }
+
+  function parseStreamEvent(block: string): StreamEvent | null {
+    const data = block
+      .split("\n")
+      .filter((line) => line.startsWith("data:"))
+      .map((line) => line.slice(5).trimStart())
+      .join("\n");
+    if (!data) return null;
+    return JSON.parse(data) as StreamEvent;
+  }
+
   return (
     <div className="grid h-[calc(100vh-5.5rem)] min-h-[720px] gap-4 xl:grid-cols-[1fr_320px]">
       <section className="soft-shadow flex min-h-0 flex-col rounded-[26px] border border-[#e4e9f0] bg-white">
@@ -202,7 +288,7 @@ export default function ChatPage() {
             <div className="text-sm font-bold text-[#8c96a6]">Text, images, files, and voice notes</div>
           </div>
           <span className="rounded-full bg-[#e8f8f2] px-4 py-2 text-sm font-black text-[#23a978]">
-            {busy ? "Running" : "Ready"}
+            {busy ? (streaming ? "Streaming" : "Running") : "Ready"}
           </span>
         </div>
 
@@ -245,6 +331,13 @@ export default function ChatPage() {
           ) : null}
           <div className="grid gap-3 md:grid-cols-[auto_1fr_auto]">
             <div className="flex gap-2">
+              <button
+                onClick={() => setStreaming((current) => !current)}
+                className={`grid h-12 w-12 place-items-center rounded-full soft-shadow ${streaming ? "bg-[#e8f8f2] text-[#23a978]" : "bg-[#f6f8fb] text-[#8c96a6]"}`}
+                title={streaming ? "Streaming mode on" : "Streaming mode off"}
+              >
+                <Radio size={18} />
+              </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="grid h-12 w-12 place-items-center rounded-full bg-[#f6f8fb] text-[#2D8CFF] soft-shadow"
@@ -313,6 +406,7 @@ export default function ChatPage() {
         <div className="space-y-3">
           <InfoRow label="Messages" value={messages.length} />
           <InfoRow label="Pending files" value={attachments.length} />
+          <InfoRow label="Streaming" value={streaming ? "On" : "Off"} />
           <InfoRow label="Max files" value="8" />
           <InfoRow label="Max size" value="25 MB" />
         </div>

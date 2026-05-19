@@ -60,6 +60,9 @@ class ConfigValidator:
                 self._require_url(base_url, "base_url", errors)
             elif base_url is not None and str(base_url).strip():
                 self._require_url(base_url, "base_url", errors)
+            timeout = data.get("timeout_seconds", 120)
+            if not isinstance(timeout, (int, float)) or timeout <= 0:
+                errors.append("timeout_seconds must be a positive number")
         profiles = data.get("model_profiles")
         if profiles is not None:
             if not isinstance(profiles, dict):

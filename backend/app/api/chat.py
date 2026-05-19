@@ -50,6 +50,7 @@ async def chat_upload(
 
 @router.post("/stream")
 async def chat_stream(request: Request, payload: ChatRequest) -> StreamingResponse:
+    timeout_seconds = 120.0
     response = await request.app.state.orchestrator.submit_user_message(
         payload.message,
         payload.priority,
@@ -57,16 +58,68 @@ async def chat_stream(request: Request, payload: ChatRequest) -> StreamingRespon
     )
 
     async def events():
-        yield f"data: {json.dumps(response.model_dump(mode='json'))}\n\n"
-        for _ in range(20):
+        yield _sse("accepted", {"type": "accepted", **response.model_dump(mode="json")})
+        deadline = asyncio.get_running_loop().time() + timeout_seconds
+        last_status: str | None = None
+        while asyncio.get_running_loop().time() < deadline:
             task = request.app.state.orchestrator.tasks.get(response.task_id)
-            if task and task.status in {"completed", "failed", "cancelled"}:
-                yield f"data: {json.dumps(task.model_dump(mode='json'))}\n\n"
-                return
-            await asyncio.sleep(0.1)
-        yield f"data: {json.dumps({'task_id': response.task_id, 'status': 'running'})}\n\n"
+            if task:
+                status = str(task.status)
+                if status != last_status:
+                    yield _sse(
+                        "status",
+                        {
+                            "type": "status",
+                            "task_id": task.id,
+                            "status": status,
+                            "response": task.result or task.error or "",
+                        },
+                    )
+                    last_status = status
+                if status in {"completed", "failed", "cancelled"}:
+                    yield _sse(
+                        "final",
+                        {
+                            "type": "final",
+                            "task_id": task.id,
+                            "status": status,
+                            "response": task.result or task.error or "",
+                            "attachments": _task_attachments(task.artifacts),
+                        },
+                    )
+                    return
+            else:
+                yield _sse("status", {"type": "status", "task_id": response.task_id, "status": "pending", "response": ""})
+                last_status = "pending"
+            yield ": keep-alive\n\n"
+            await asyncio.sleep(0.5)
+        yield _sse(
+            "timeout",
+            {
+                "type": "timeout",
+                "task_id": response.task_id,
+                "status": "running",
+                "response": f"Task is still running after {timeout_seconds:g}s.",
+            },
+        )
 
     return StreamingResponse(events(), media_type="text/event-stream")
+
+
+def _sse(event: str, payload: dict[str, Any]) -> str:
+    return f"event: {event}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
+
+
+def _task_attachments(artifacts: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    attachments: list[dict[str, Any]] = []
+    for item in artifacts:
+        if item.get("type") == "chat_attachments" and isinstance(item.get("items"), list):
+            attachments.extend(entry for entry in item["items"] if isinstance(entry, dict))
+        elif item.get("type") == "attachment" and isinstance(item.get("attachment"), dict):
+            attachments.append(item["attachment"])
+        elif "original_name" in item:
+            attachments.append(item)
+    return attachments
 
 
 async def _save_uploads(request: Request, files: list[UploadFile]) -> list[dict[str, Any]]:

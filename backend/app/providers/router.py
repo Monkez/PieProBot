@@ -37,6 +37,7 @@ class ProviderRouter:
                     "default_model": data.get("default_model"),
                     "model_profiles": cls._model_profiles(data),
                     "base_url": data.get("base_url"),
+                    "timeout_seconds": data.get("timeout_seconds", 120),
                 }
             )
             if not enabled:
@@ -50,7 +51,7 @@ class ProviderRouter:
                         base_url=str(data.get("base_url", "https://api.openai.com/v1")),
                         api_key_env=str(data.get("api_key_env", "OPENAI_API_KEY")),
                         default_model=str(data.get("default_model", "gpt-4.1-mini")),
-                        timeout_seconds=float(data.get("timeout_seconds", 90)),
+                        timeout_seconds=float(data.get("timeout_seconds", 120)),
                     )
                 )
             elif provider_type in {"openai_compatible", "custom"} or name in {"openai_compatible", "custom"}:
@@ -60,7 +61,7 @@ class ProviderRouter:
                         base_url=str(data.get("base_url", "http://localhost:1234/v1")),
                         api_key_env=str(data.get("api_key_env", "CUSTOM_PROVIDER_API_KEY" if name == "custom" else "OPENAI_COMPATIBLE_API_KEY")),
                         default_model=str(data.get("default_model", "local-model")),
-                        timeout_seconds=float(data.get("timeout_seconds", 90)),
+                        timeout_seconds=float(data.get("timeout_seconds", 120)),
                     )
                 )
         providers.extend(local_providers)

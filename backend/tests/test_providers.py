@@ -8,6 +8,7 @@ from types import SimpleNamespace
 from app.api.providers import _api_key_env, load_provider_secrets
 from app.providers.base import BaseLLMProvider, ProviderResponse
 from app.providers.local_provider import LocalProvider
+from app.providers.openai_compatible_provider import OpenAICompatibleProvider
 
 
 class RecordingProvider(BaseLLMProvider):
@@ -88,6 +89,12 @@ async def test_provider_router_reports_provider_failure_details() -> None:
         assert "upstream timeout" in str(exc)
     else:
         raise AssertionError("provider failure should be raised")
+
+
+def test_openai_compatible_provider_default_timeout_is_120_seconds() -> None:
+    provider = OpenAICompatibleProvider("custom", "http://localhost:1234/v1", "CUSTOM_PROVIDER_API_KEY", "local-model")
+
+    assert provider.timeout_seconds == 120
 
 
 def test_provider_api_key_value_becomes_runtime_env(tmp_path: Path) -> None:

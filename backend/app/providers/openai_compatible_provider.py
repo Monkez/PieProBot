@@ -14,7 +14,7 @@ class OpenAICompatibleProvider(BaseLLMProvider):
         base_url: str,
         api_key_env: str,
         default_model: str,
-        timeout_seconds: float = 90,
+        timeout_seconds: float = 120,
     ) -> None:
         self.name = name
         self.base_url = base_url.rstrip("/")

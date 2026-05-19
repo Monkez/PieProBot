@@ -42,6 +42,17 @@ def test_chat_upload_accepts_attachments() -> None:
         assert body["attachments"][0]["kind"] == "file"
 
 
+def test_chat_stream_returns_sse_events() -> None:
+    with TestClient(app) as client:
+        with client.stream("POST", "/api/chat/stream", json={"message": "hello stream"}) as response:
+            assert response.status_code == 200
+            body = response.read().decode()
+
+    assert "event: accepted" in body
+    assert "event: final" in body
+    assert '"status": "completed"' in body
+
+
 def test_admin_api_key_protects_control_plane(monkeypatch) -> None:
     monkeypatch.setenv("ADMIN_API_KEY", "test-secret")
     with TestClient(app) as client:
