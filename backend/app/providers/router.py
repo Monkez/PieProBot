@@ -4,6 +4,7 @@ from pathlib import Path
 
 import yaml
 
+from app.observability.logging import get_logger
 from app.providers.base import BaseLLMProvider, ProviderResponse
 from app.providers.local_provider import LocalProvider
 from app.providers.openai_compatible_provider import OpenAICompatibleProvider
@@ -14,6 +15,7 @@ class ProviderRouter:
         self.providers = providers or [LocalProvider()]
         self.configured = configured or [{"name": provider.name, "enabled": True} for provider in self.providers]
         self.cost_total = 0.0
+        self.logger = get_logger("providers")
 
     @classmethod
     def from_config_dir(cls, config_dir: Path, plugin_factories: list | None = None) -> "ProviderRouter":
@@ -48,6 +50,7 @@ class ProviderRouter:
                         base_url=str(data.get("base_url", "https://api.openai.com/v1")),
                         api_key_env=str(data.get("api_key_env", "OPENAI_API_KEY")),
                         default_model=str(data.get("default_model", "gpt-4.1-mini")),
+                        timeout_seconds=float(data.get("timeout_seconds", 90)),
                     )
                 )
             elif provider_type in {"openai_compatible", "custom"} or name in {"openai_compatible", "custom"}:
@@ -57,6 +60,7 @@ class ProviderRouter:
                         base_url=str(data.get("base_url", "http://localhost:1234/v1")),
                         api_key_env=str(data.get("api_key_env", "CUSTOM_PROVIDER_API_KEY" if name == "custom" else "OPENAI_COMPATIBLE_API_KEY")),
                         default_model=str(data.get("default_model", "local-model")),
+                        timeout_seconds=float(data.get("timeout_seconds", 90)),
                     )
                 )
         providers.extend(local_providers)
@@ -71,6 +75,7 @@ class ProviderRouter:
 
     async def chat(self, messages: list[dict[str, str]], route: str = "default") -> ProviderResponse:
         last_error: Exception | None = None
+        failures: list[str] = []
         for provider in self.providers:
             try:
                 response = await provider.chat(messages, self._model_for(provider.name, route))
@@ -78,7 +83,9 @@ class ProviderRouter:
                 return response
             except Exception as exc:
                 last_error = exc
-        raise RuntimeError(f"All providers failed: {last_error}")
+                failures.append(f"{provider.name}: {exc!r}")
+                self.logger.warning("provider failed: %s", failures[-1])
+        raise RuntimeError(f"All providers failed: {'; '.join(failures) or repr(last_error)}")
 
     async def chat_with_provider(self, name: str, messages: list[dict[str, str]], route: str = "default") -> ProviderResponse:
         for provider in self.providers:

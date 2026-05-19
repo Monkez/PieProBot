@@ -72,6 +72,24 @@ async def test_local_provider_returns_user_facing_fallback() -> None:
     assert "LocalProvider processed" not in response.content
 
 
+async def test_provider_router_reports_provider_failure_details() -> None:
+    class FailingProvider(BaseLLMProvider):
+        name = "failing"
+
+        async def chat(self, messages: list[dict[str, str]], model: str | None = None) -> ProviderResponse:
+            raise RuntimeError("upstream timeout")
+
+    router = ProviderRouter(providers=[FailingProvider()], configured=[{"name": "failing", "enabled": True}])
+
+    try:
+        await router.chat([{"role": "user", "content": "hello"}])
+    except RuntimeError as exc:
+        assert "failing" in str(exc)
+        assert "upstream timeout" in str(exc)
+    else:
+        raise AssertionError("provider failure should be raised")
+
+
 def test_provider_api_key_value_becomes_runtime_env(tmp_path: Path) -> None:
     request = SimpleNamespace(app=SimpleNamespace(state=SimpleNamespace(root=tmp_path)))
     env_name = _api_key_env(request, "chiasegpu", "sk-test-value")
