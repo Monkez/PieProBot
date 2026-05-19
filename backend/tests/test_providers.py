@@ -6,6 +6,15 @@ from app.providers.router import ProviderRouter
 from types import SimpleNamespace
 
 from app.api.providers import _api_key_env, load_provider_secrets
+from app.providers.base import BaseLLMProvider, ProviderResponse
+from app.providers.local_provider import LocalProvider
+
+
+class RecordingProvider(BaseLLMProvider):
+    name = "real"
+
+    async def chat(self, messages: list[dict[str, str]], model: str | None = None) -> ProviderResponse:
+        return ProviderResponse(content=f"real:{model}", model=model or "none")
 
 
 async def test_provider_router_loads_configured_providers() -> None:
@@ -14,7 +23,6 @@ async def test_provider_router_loads_configured_providers() -> None:
     names = {item["name"] for item in status}
     assert {"local", "openai", "openai_compatible", "anthropic", "custom"}.issubset(names)
     assert any(item["name"] == "custom" and item["base_url"] for item in status)
-    assert any(item["name"] == "local" and item["active"] and item["healthy"] for item in status)
     assert any(item["name"] == "local" and item["model_profiles"]["fast"] == "local-mock" for item in status)
 
 
@@ -41,6 +49,27 @@ model_profiles:
 
     assert fast.model == "fast-model"
     assert power.model == "power-model"
+
+
+async def test_provider_router_uses_non_local_before_local() -> None:
+    router = ProviderRouter(
+        providers=[RecordingProvider(), LocalProvider()],
+        configured=[
+            {"name": "real", "enabled": True, "model_profiles": {"normal": "real-model"}},
+            {"name": "local", "enabled": True, "model_profiles": {"normal": "local-mock"}},
+        ],
+    )
+
+    response = await router.chat([{"role": "user", "content": "hello"}])
+
+    assert response.content == "real:real-model"
+
+
+async def test_local_provider_returns_user_facing_fallback() -> None:
+    response = await LocalProvider().chat([{"role": "user", "content": "xin chào"}])
+
+    assert "local fallback" in response.content
+    assert "LocalProvider processed" not in response.content
 
 
 def test_provider_api_key_value_becomes_runtime_env(tmp_path: Path) -> None:

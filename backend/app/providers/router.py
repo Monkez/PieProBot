@@ -18,6 +18,7 @@ class ProviderRouter:
     @classmethod
     def from_config_dir(cls, config_dir: Path, plugin_factories: list | None = None) -> "ProviderRouter":
         providers: list[BaseLLMProvider] = []
+        local_providers: list[BaseLLMProvider] = []
         configured: list[dict[str, object]] = []
         for path in sorted(config_dir.glob("*.yaml")):
             data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
@@ -39,7 +40,7 @@ class ProviderRouter:
             if not enabled:
                 continue
             if provider_type == "local" or name == "local":
-                providers.append(LocalProvider())
+                local_providers.append(LocalProvider())
             elif provider_type == "openai" or name == "openai":
                 providers.append(
                     OpenAICompatibleProvider(
@@ -58,6 +59,7 @@ class ProviderRouter:
                         default_model=str(data.get("default_model", "local-model")),
                     )
                 )
+        providers.extend(local_providers)
         if not providers:
             providers.append(LocalProvider())
             configured.append({"name": "local", "enabled": True, "default_model": "local-mock", "fallback_injected": True})

@@ -12,7 +12,7 @@ def test_health_and_chat_api() -> None:
         assert response.status_code == 200
         body = response.json()
         assert body["status"] == "completed"
-        assert "LocalProvider processed" in body["response"]
+        assert body["response"]
 
 
 def test_api_tools_and_memory() -> None:
