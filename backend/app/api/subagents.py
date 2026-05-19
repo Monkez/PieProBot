@@ -22,3 +22,8 @@ async def get_subagent(request: Request, subagent_id: str):
 async def kill_subagent(request: Request, subagent_id: str):
     return (await request.app.state.subagents.kill(subagent_id)).model_dump(mode="json")
 
+
+@router.post("/{subagent_id}/interrupt-tree")
+async def interrupt_subagent_tree(request: Request, subagent_id: str):
+    records = await request.app.state.subagents.interrupt_tree(subagent_id)
+    return [record.model_dump(mode="json") for record in records]

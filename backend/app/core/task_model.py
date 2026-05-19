@@ -42,6 +42,7 @@ class TaskPlan(BaseModel):
     assumptions: list[str] = Field(default_factory=list)
     subtasks: list[str] = Field(default_factory=list)
     required_tools: list[str] = Field(default_factory=list)
+    required_toolsets: list[str] = Field(default_factory=list)
     required_subagents: list[str] = Field(default_factory=list)
     success_criteria: list[str] = Field(default_factory=list)
     validation_steps: list[str] = Field(default_factory=list)
@@ -73,14 +74,18 @@ class SubagentRecord(BaseModel):
     type: str
     task_id: str
     parent_orchestrator_id: str
+    parent_subagent_id: str | None = None
+    depth: int = 0
     status: SubagentStatus = SubagentStatus.CREATED
     permissions: dict[str, bool] = Field(default_factory=dict)
     allowed_tools: list[str] = Field(default_factory=list)
+    allowed_toolsets: list[str] = Field(default_factory=list)
     context: dict[str, Any] = Field(default_factory=dict)
     memory_scope: str = "task"
     token_budget: int = 8_000
     time_budget_seconds: int = 60
     retry_budget: int = 1
+    tool_call_budget: int = 25
     current_step: str = "created"
     logs: list[str] = Field(default_factory=list)
     result: str | None = None
@@ -105,4 +110,3 @@ class ChatResponse(BaseModel):
     task_id: str
     status: TaskStatus
     response: str
-

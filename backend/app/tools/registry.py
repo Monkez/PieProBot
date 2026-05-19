@@ -8,6 +8,7 @@ import yaml
 
 from app.tools.executor import ToolExecutor
 from app.tools.schemas import ToolDefinition, ToolResult
+from app.tools.toolsets import ToolsetManager
 
 
 BUILTIN_HANDLERS = {
@@ -25,9 +26,15 @@ def _load_callable(path: str) -> Any:
 
 
 class ToolRegistry:
-    def __init__(self, config_dir: Path, executor: ToolExecutor | None = None) -> None:
+    def __init__(
+        self,
+        config_dir: Path,
+        executor: ToolExecutor | None = None,
+        toolsets: ToolsetManager | None = None,
+    ) -> None:
         self.config_dir = config_dir
         self.executor = executor or ToolExecutor()
+        self.toolsets = toolsets or ToolsetManager(config_dir.parent / "toolsets.yaml")
         self.definitions: dict[str, ToolDefinition] = {}
         self.config_paths: dict[str, str] = {}
 
@@ -49,5 +56,33 @@ class ToolRegistry:
     def get(self, name: str) -> ToolDefinition:
         return self.definitions[name]
 
-    async def execute(self, name: str, payload: dict[str, Any], granted_permissions: dict[str, bool] | None = None) -> ToolResult:
-        return await self.executor.execute(self.get(name), payload, granted_permissions)
+    def resolve_allowed_tools(self, tools: list[str] | None = None, toolsets: list[str] | None = None) -> list[str]:
+        resolved: list[str] = []
+        for name in tools or []:
+            if name not in resolved:
+                resolved.append(name)
+        for name in self.toolsets.resolve(toolsets):
+            if name not in resolved:
+                resolved.append(name)
+        return [name for name in resolved if name in self.definitions]
+
+    def register_definition(
+        self,
+        definition: ToolDefinition,
+        handler: Any | None = None,
+        config_path: str = "plugin",
+    ) -> None:
+        self.definitions[definition.name] = definition
+        self.config_paths[definition.name] = config_path
+        if handler:
+            self.executor.register_handler(definition.name, handler)
+
+    async def execute(
+        self,
+        name: str,
+        payload: dict[str, Any],
+        granted_permissions: dict[str, bool] | None = None,
+        task_id: str | None = None,
+        subagent_id: str | None = None,
+    ) -> ToolResult:
+        return await self.executor.execute(self.get(name), payload, granted_permissions, task_id, subagent_id)

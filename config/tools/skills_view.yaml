@@ -1,0 +1,23 @@
+version: 1
+name: skills.view
+description: View a PiePro skill by name.
+category: skills
+enabled: true
+input_schema:
+  type: object
+  properties:
+    name:
+      type: string
+  required:
+    - name
+output_schema:
+  type: object
+permissions:
+  skills: true
+timeout_seconds: 5
+retry_policy:
+  max_retries: 0
+  backoff: none
+sandbox_policy: {}
+rate_limit: {}
+audit_level: standard

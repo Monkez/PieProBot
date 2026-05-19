@@ -2,7 +2,7 @@
 
 PiePro memory has two layers:
 
-- Local in-memory fallback managed by `MemoryManager`.
+- Local SQLite-backed fallback managed by `MemoryManager`.
 - Optional TencentDB Agent Memory external backend through TDAI Gateway.
 
 ## Local Memory
@@ -12,6 +12,10 @@ Local memory stores:
 - User messages.
 - Task summaries.
 - Conversation turns.
+
+Local memory is restored from `runtime/piepro.sqlite3` on backend startup and indexed with FTS5. In-memory state remains the hot working set, while SQLite is the durable local store.
+
+Background review may add explicit user preferences after completed tasks, but it now goes through the learning policy first. Durable preferences can be auto-applied; transient task progress, likely secrets, and one-off facts are blocked or sent to review. Procedural lessons should go to skills instead of memory; memory remains for durable facts about the user, project, or environment.
 
 It supports:
 
@@ -57,4 +61,3 @@ Fields:
 - `external_healthy`
 - `external_base_url`
 - `external_error`
-

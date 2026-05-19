@@ -15,7 +15,7 @@ class ChannelManager:
         self.configured = configured or []
 
     @classmethod
-    def from_config_dir(cls, config_dir: Path) -> "ChannelManager":
+    def from_config_dir(cls, config_dir: Path, plugin_factories: list | None = None) -> "ChannelManager":
         channels: list[BaseChannel] = []
         configured: list[dict[str, Any]] = []
         for path in sorted(config_dir.glob("*.yaml")):
@@ -47,6 +47,10 @@ class ChannelManager:
                         timeout_seconds=float(data.get("timeout_seconds", 10)),
                     )
                 )
+        for factory in plugin_factories or []:
+            channel = factory()
+            channels.append(channel)
+            configured.append({"name": channel.name, "type": "plugin", "enabled": True})
         return cls(channels, configured)
 
     async def status(self) -> list[dict[str, Any]]:

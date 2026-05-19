@@ -1,0 +1,27 @@
+version: 1
+name: self_update.plan
+description: Create a self-update plan for a proposed PiePro improvement.
+category: self_update
+enabled: true
+input_schema:
+  type: object
+  properties:
+    goal:
+      type: string
+    files_to_change:
+      type: array
+      items:
+        type: string
+  required:
+    - goal
+output_schema:
+  type: object
+permissions:
+  self_update: true
+timeout_seconds: 10
+retry_policy:
+  max_retries: 0
+  backoff: none
+sandbox_policy: {}
+rate_limit: {}
+audit_level: full

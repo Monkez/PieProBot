@@ -25,11 +25,17 @@ class MemoryItem(BaseModel):
 
 
 class MemoryManager:
-    def __init__(self, policy: MemoryPolicy | None = None, external_backend: Any | None = None) -> None:
+    def __init__(self, policy: MemoryPolicy | None = None, external_backend: Any | None = None, state_store: Any | None = None) -> None:
         self.policy = policy or MemoryPolicy()
         self.external_backend = external_backend
+        self.state_store = state_store
         self._items: dict[str, MemoryItem] = {}
         self.logger = get_logger("memory")
+        if self.state_store:
+            try:
+                self._items = {item.id: item for item in self.state_store.load_memory()}
+            except Exception as exc:
+                self.logger.warning("memory restore failed: %s", exc)
 
     async def save(self, item: MemoryItem) -> MemoryItem:
         if "secret" in item.privacy_level.lower():
@@ -39,6 +45,7 @@ class MemoryManager:
                 if existing.content == item.content and existing.type == item.type:
                     return existing
         self._items[item.id] = item
+        self._persist(item)
         return item
 
     async def retrieve(self, memory_id: str) -> MemoryItem | None:
@@ -63,10 +70,17 @@ class MemoryManager:
         item = self._items[memory_id].model_copy(update=patch)
         item.updated_at = datetime.now(timezone.utc)
         self._items[memory_id] = item
+        self._persist(item)
         return item
 
     async def delete(self, memory_id: str) -> bool:
-        return self._items.pop(memory_id, None) is not None
+        deleted = self._items.pop(memory_id, None) is not None
+        if deleted and self.state_store:
+            try:
+                self.state_store.delete_memory(memory_id)
+            except Exception as exc:
+                self.logger.warning("memory delete persistence failed: %s", exc)
+        return deleted
 
     async def summarize(self, scope: str = "all") -> str:
         items = list(self._items.values())
@@ -82,6 +96,8 @@ class MemoryManager:
                 seen.add(key)
                 compacted[item.id] = item
         self._items = compacted
+        for item in self._items.values():
+            self._persist(item)
         return {"before": before, "after": len(self._items)}
 
     async def capture_turn(
@@ -131,3 +147,11 @@ class MemoryManager:
             except Exception as exc:
                 status["external_error"] = str(exc)
         return status
+
+    def _persist(self, item: MemoryItem) -> None:
+        if not self.state_store:
+            return
+        try:
+            self.state_store.save_memory(item)
+        except Exception as exc:
+            self.logger.warning("memory persistence failed: %s", exc)

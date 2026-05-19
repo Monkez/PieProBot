@@ -1,5 +1,9 @@
 version: 1
 max_subagents: 8
+max_concurrent: 3
+max_spawn_depth: 1
+blocked_tools:
+  - shell
 heartbeat_interval_seconds: 5
 heartbeat_timeout_seconds: 30
 types:
@@ -14,4 +18,3 @@ types:
   - DeploymentAgent
   - SelfUpdateAgent
   - MemoryAgent
-

@@ -74,6 +74,79 @@ Operational pages now perform the common runtime actions directly:
 - Memory: search, create, delete, and compact.
 - Self-Update: detect, plan, create candidate, test, start, healthcheck, promote, rollback, report, and destroy failed candidates.
 
+## Runtime State
+
+PiePro persists operational state in:
+
+```text
+runtime/piepro.sqlite3
+```
+
+The database stores tasks, subagents, messages, tool calls, local memory items, schedules, learning proposals, and checkpoint metadata. Search persisted state with:
+
+```bash
+GET /api/state/search?q=memory
+```
+
+## Scheduled Tasks
+
+Create simple local schedules through the API:
+
+```bash
+POST /api/schedules
+```
+
+Payloads support either:
+
+- `every_seconds`: recurring interval.
+- `run_at`: Unix timestamp for a one-shot task.
+
+The scheduler submits due prompts into the normal orchestrator path. Use `POST /api/schedules/tick` for a manual tick during development.
+
+## Checkpoints
+
+Filesystem writes automatically create a file-level checkpoint. Shell commands can opt into checkpointing by passing `workspace` and `checkpoint_paths` in the tool payload. Roll back with:
+
+```bash
+POST /api/checkpoints/{checkpoint_id}/rollback
+```
+
+Checkpoints are stored under `runtime/checkpoints/`.
+
+## Skills
+
+Skills are stored under:
+
+```text
+skills/<name>/SKILL.md
+```
+
+Use the API to inspect or manage them:
+
+```bash
+GET /api/skills
+GET /api/skills/{name}
+POST /api/skills
+POST /api/skills/{name}/patch
+POST /api/skills/curator/run
+```
+
+The curator endpoint defaults to dry-run mode. Pass `dry_run=false` only when you want it to create umbrella skills.
+
+## Hybrid Learning
+
+Completed tasks can produce learning proposals. Safe items are auto-applied; review items wait for operator approval; blocked items are retained with a reason.
+
+```bash
+GET /api/learning/proposals
+GET /api/learning/proposals?status=pending
+GET /api/learning/proposals/{proposal_id}
+POST /api/learning/proposals/{proposal_id}/approve
+POST /api/learning/proposals/{proposal_id}/reject
+```
+
+Use approval for skill patches, archives, or other higher-impact learning. Explicit durable preferences and class-level skill references are normally safe enough to apply automatically.
+
 ## Custom Providers
 
 Add or edit `config/providers/custom.yaml`:

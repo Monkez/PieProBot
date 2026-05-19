@@ -15,6 +15,7 @@ class ToolDefinition(BaseModel):
     version: str | int = "1.0.0"
     description: str = ""
     category: str = "general"
+    toolsets: list[str] = Field(default_factory=list)
     enabled: bool = True
     input_schema: dict[str, Any] = Field(default_factory=lambda: {"type": "object"})
     output_schema: dict[str, Any] = Field(default_factory=lambda: {"type": "object"})
@@ -31,3 +32,4 @@ class ToolResult(BaseModel):
     ok: bool
     output: Any = None
     error: str | None = None
+    checkpoint_id: str | None = None

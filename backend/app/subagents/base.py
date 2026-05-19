@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
+from app.agent.loop import AgentLoop
 from app.core.task_model import SubagentRecord, SubagentStatus
 from app.observability.logging import get_logger
 from app.providers.router import ProviderRouter
@@ -19,10 +20,16 @@ class BaseSubagent:
         record: SubagentRecord,
         tool_registry: ToolRegistry,
         provider_router: ProviderRouter,
+        root=None,
+        memory=None,
+        skills=None,
     ) -> None:
         self.record = record
         self.tool_registry = tool_registry
         self.provider_router = provider_router
+        self.root = root
+        self.memory = memory
+        self.skills = skills
         self.logger = get_logger("subagents")
 
     async def run(self) -> SubagentRecord:
@@ -62,7 +69,16 @@ class BaseSubagent:
         return self.record
 
     async def execute(self) -> str:
-        await asyncio.sleep(0.25)
+        await asyncio.sleep(0.05)
+        if self.root is not None:
+            loop = AgentLoop(
+                root=self.root,
+                provider_router=self.provider_router,
+                tool_registry=self.tool_registry,
+                memory=self.memory,
+                skills=self.skills,
+            )
+            return await loop.run(self.record)
         goal = str(self.record.context.get("goal", ""))
         provider_response = await self.provider_router.chat([{"role": "user", "content": goal}])
         return provider_response.content
@@ -94,6 +110,8 @@ class MemoryAgent(BaseSubagent):
                 "memory.search",
                 {"query": query},
                 granted_permissions=self.record.permissions,
+                task_id=self.record.task_id,
+                subagent_id=self.record.id,
             )
             if result.ok:
                 return f"Memory search result: {result.output}"

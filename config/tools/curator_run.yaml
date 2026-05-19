@@ -1,0 +1,21 @@
+version: 1
+name: curator.run
+description: Run the skill curator to propose or create umbrella skill consolidations.
+category: skills
+enabled: true
+input_schema:
+  type: object
+  properties:
+    dry_run:
+      type: boolean
+output_schema:
+  type: object
+permissions:
+  skills: true
+timeout_seconds: 10
+retry_policy:
+  max_retries: 0
+  backoff: none
+sandbox_policy: {}
+rate_limit: {}
+audit_level: full

@@ -1,6 +1,6 @@
 # PiePro
 
-PiePro is a lightweight local AI agent platform. It provides a FastAPI backend, async orchestrator, temporary subagents, tool registry, provider abstraction, channel adapters, memory abstraction, TencentDB Agent Memory integration, self-update simulation, and a Next.js admin console.
+PiePro is a lightweight local AI agent platform. It provides a FastAPI backend, async orchestrator, temporary subagents, a Hermes-inspired agent loop, dynamic system prompts, SQLite runtime persistence with FTS search, toolsets, a tool registry, provider abstraction, channel adapters, memory abstraction, skills, background learning, local plugins, simple schedules, checkpoint rollback, TencentDB Agent Memory integration, self-update planning, and a Next.js admin console.
 
 The project is intentionally simple to install and run: no Docker, no required database, no required queue service. The default runtime uses local in-memory state and optional external adapters.
 
@@ -78,12 +78,19 @@ Runtime files:
 ## Architecture
 
 - **Orchestrator**: accepts user messages, creates task records, plans work, spawns subagents, collects results, and stays non-blocking.
-- **Subagents**: temporary scoped workers with lifecycle, heartbeat, permissions, allowed tools, budget fields, logs, and result/error records.
-- **Tools**: YAML-configured registry with schema, timeout, permission, audit level, and built-in handlers.
+- **Agent loop**: subagents build a dynamic self/context prompt, call the provider, execute model-requested tool calls, append tool results, compact long context, and iterate to a final answer.
+- **Subagents**: temporary scoped workers with lifecycle, heartbeat, permissions, allowed tools/toolsets, budget fields, logs, and result/error records.
+- **Persistence**: SQLite state store under `runtime/piepro.sqlite3` for tasks, subagents, messages, tool calls, schedules, checkpoints, and local memory, with FTS search.
+- **Tools**: YAML-configured registry with schema, timeout, permission, audit level, built-in handlers, and named toolsets from `config/toolsets.yaml`.
 - **Providers**: provider router loaded from `config/providers/*.yaml`; local mock provider is enabled by default. Custom OpenAI-compatible providers can be configured with `provider_type: custom` and `base_url`.
 - **Channels**: channel manager loaded from `config/channels/*.yaml`; Telegram is available through `TELEGRAM_BOT_TOKEN` and optional `default_chat_id`.
 - **Memory**: local memory manager with optional TencentDB Agent Memory external backend.
-- **Self-update**: safe stable/candidate flow simulation under `runtime/bodies`.
+- **Skills**: class-level procedural memory under `skills/<name>/SKILL.md`, with references/templates/scripts support and `skills.*` tools.
+- **Background learning**: completed tasks are reviewed for durable memory and reusable skill updates.
+- **Plugins**: local `plugins/<name>/plugin.yaml` modules can register tools, providers, channels, or memory wrappers.
+- **Schedules**: simple one-shot or fixed-interval scheduled prompts submit into the orchestrator.
+- **Checkpoints**: file-level checkpoints are created before filesystem writes and can be restored through the checkpoint API.
+- **Self-update**: safe stable/candidate flow simulation under `runtime/bodies`, plus a `self_update.plan` tool for gated improvement planning.
 - **Frontend**: Next.js operations console for dashboard, chat, task actions, subagent kill, tool execution, provider tests, memory CRUD/compact, self-update workflow, channels, logs, and config.
 - **Design system**: bright minimal fintech dashboard with white/soft-gray surfaces, blue primary accents, warm yellow/orange highlights, rounded cards, subtle neumorphic shadows, and only operationally useful widgets.
 
@@ -194,7 +201,7 @@ Start here:
 ## Current Boundaries
 
 - Default LLM calls use `LocalProvider`.
-- State is in-memory by default.
+- Runtime state is local SQLite by default.
 - TencentDB Agent Memory is optional and accessed via external gateway.
 - Self-update candidate startup is simulated; promotion safety checks exist but do not yet switch live traffic.
 - Frontend covers the main runtime actions; deeper charts, RBAC screens, and persistent DB adapters remain future work.

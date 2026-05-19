@@ -17,7 +17,7 @@ class ProviderRouter:
         self.cost_total = 0.0
 
     @classmethod
-    def from_config_dir(cls, config_dir: Path) -> "ProviderRouter":
+    def from_config_dir(cls, config_dir: Path, plugin_factories: list | None = None) -> "ProviderRouter":
         providers: list[BaseLLMProvider] = []
         configured: list[dict[str, object]] = []
         for path in sorted(config_dir.glob("*.yaml")):
@@ -54,6 +54,10 @@ class ProviderRouter:
         if not providers:
             providers.append(LocalProvider())
             configured.append({"name": "local", "enabled": True, "default_model": "local-mock", "fallback_injected": True})
+        for factory in plugin_factories or []:
+            provider = factory()
+            providers.append(provider)
+            configured.append({"name": provider.name, "enabled": True, "provider_type": "plugin", "active": True})
         return cls(providers, configured)
 
     async def chat(self, messages: list[dict[str, str]], route: str = "default") -> ProviderResponse:

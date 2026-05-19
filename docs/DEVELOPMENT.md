@@ -46,6 +46,32 @@ For every code change:
 4. Run frontend build if frontend or shared install changes.
 5. Run `npm audit --audit-level=moderate` if frontend dependencies change.
 
+## Runtime Extension Tests
+
+When changing persistence, plugins, toolsets, scheduler, checkpoints, or subagent limits, update `backend/tests/test_runtime_extensions.py`. These features are intentionally local and dependency-light, so tests should use temporary SQLite files and temporary plugin directories instead of external services.
+
+The same test file also covers the agent cognition layer: model-requested tool calls, tool-call persistence, background review, and skill creation. Add focused tests there when changing `backend/app/agent` or `backend/app/skills`.
+
+## Local Plugin Shape
+
+A plugin directory looks like:
+
+```text
+plugins/demo/
+  plugin.yaml
+  plugin.py
+```
+
+`plugin.yaml`:
+
+```yaml
+name: demo
+module: plugin.py
+enabled: true
+```
+
+`plugin.py` exposes `register(ctx)` and may call `ctx.register_tool`, `ctx.register_provider`, `ctx.register_channel`, or `ctx.register_memory`.
+
 ## Naming
 
 The canonical bot/product name is **PiePro**. Do not introduce new user-facing names unless explicitly approved.
