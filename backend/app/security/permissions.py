@@ -16,3 +16,36 @@ DEFAULT_ROLES = {
     "viewer": RolePermissions(role="viewer"),
 }
 
+
+def role_permissions(role: str | None) -> RolePermissions:
+    return DEFAULT_ROLES.get(role or "viewer", DEFAULT_ROLES["viewer"])
+
+
+def tool_permissions_for_role(role: str | None) -> dict[str, bool]:
+    permissions = role_permissions(role)
+    if permissions.role == "admin":
+        return {
+            "filesystem": True,
+            "memory": True,
+            "network": True,
+            "self_update": True,
+            "shell": permissions.can_execute_shell,
+            "skills": True,
+        }
+    if permissions.role == "operator":
+        return {
+            "filesystem": permissions.can_edit_config,
+            "memory": True,
+            "network": True,
+            "self_update": False,
+            "shell": False,
+            "skills": True,
+        }
+    return {
+        "filesystem": False,
+        "memory": True,
+        "network": False,
+        "self_update": False,
+        "shell": False,
+        "skills": False,
+    }

@@ -26,3 +26,11 @@ def test_api_tools_and_memory() -> None:
         assert created["id"].startswith("mem_")
         results = client.get("/api/memory/search?q=qdrant").json()
         assert len(results) >= 1
+
+
+def test_admin_api_key_protects_control_plane(monkeypatch) -> None:
+    monkeypatch.setenv("ADMIN_API_KEY", "test-secret")
+    with TestClient(app) as client:
+        assert client.get("/health").status_code == 200
+        assert client.get("/api/tasks").status_code == 401
+        assert client.get("/api/tasks", headers={"x-api-key": "test-secret"}).status_code == 200

@@ -4,4 +4,7 @@ enabled: false
 api_key_env: OPENAI_API_KEY
 base_url: https://api.openai.com/v1
 default_model: gpt-4.1-mini
-
+model_profiles:
+  fast: gpt-4.1-mini
+  normal: gpt-4.1
+  power: gpt-4.1

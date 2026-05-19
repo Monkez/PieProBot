@@ -2,4 +2,7 @@ version: 1
 name: local
 enabled: true
 default_model: local-mock
-
+model_profiles:
+  fast: local-mock
+  normal: local-mock
+  power: local-mock

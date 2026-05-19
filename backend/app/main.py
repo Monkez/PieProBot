@@ -8,10 +8,12 @@ from typing import Any
 from uuid import uuid4
 
 import yaml
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api import channels, chat, checkpoints, config, health, learning, logs, memory, plugins, providers, schedules, self_update, skills, state as state_api, subagents, tasks, tools
+from app.api.providers import load_provider_secrets
 from app.channels.manager import ChannelManager
 from app.config.hot_reload import HotReloadManager
 from app.config.loader import ConfigLoader
@@ -28,6 +30,7 @@ from app.observability.metrics import MetricsCollector
 from app.plugins.manager import PluginManager
 from app.providers.router import ProviderRouter
 from app.scheduler.manager import ScheduledTaskManager
+from app.security.auth import authenticate_request
 from app.self_update.manager import SelfUpdateManager
 from app.skills.store import SkillStore
 from app.subagents.factory import SubagentFactory
@@ -49,6 +52,7 @@ class RuntimeState:
         self.curator = SkillCurator(self.skills)
         self.memory = self._build_memory_manager()
         self.background_review = BackgroundReview(self.memory, self.skills, self.state_store)
+        load_provider_secrets(root)
         self.providers = ProviderRouter.from_config_dir(
             root / "config" / "providers",
             self.plugins.context.provider_factories,
@@ -212,6 +216,14 @@ app = FastAPI(title="PiePro", version="0.1.0", lifespan=lifespan)
 async def correlation_middleware(request: Request, call_next):
     correlation_id = request.headers.get("x-correlation-id") or f"corr_{uuid4().hex[:16]}"
     set_request_context(correlation_id)
+    try:
+        request.state.role = await authenticate_request(request)
+    except HTTPException as exc:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail},
+            headers={"x-correlation-id": correlation_id},
+        )
     start = perf_counter()
     response = await call_next(request)
     duration_ms = round((perf_counter() - start) * 1000, 2)

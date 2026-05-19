@@ -2,9 +2,25 @@
 
 import { useState } from "react";
 import { RefreshCw, Save } from "lucide-react";
-import { apiGet, apiPost, apiPut } from "@/lib/api";
+import { apiGet, apiPut } from "@/lib/api";
 
 type ConfigData = Record<string, any>;
+
+function readPath(data: ConfigData, path: string) {
+  return path.split(".").reduce<any>((value, key) => (value && typeof value === "object" ? value[key] : undefined), data);
+}
+
+function writePath(data: ConfigData, path: string, value: unknown) {
+  const next = { ...data };
+  const parts = path.split(".");
+  let cursor: ConfigData = next;
+  for (const part of parts.slice(0, -1)) {
+    cursor[part] = { ...(cursor[part] || {}) };
+    cursor = cursor[part];
+  }
+  cursor[parts[parts.length - 1]] = value;
+  return next;
+}
 
 export function ToggleField({ checked, onChange }: { checked: boolean; onChange: (value: boolean) => void }) {
   return (
@@ -26,7 +42,8 @@ export function ConfigControlCard({
   fields,
   reloadLabel = "Reload config",
   onReload,
-  initialConfig
+  initialConfig,
+  onSave
 }: {
   title: string;
   subtitle: string;
@@ -36,6 +53,7 @@ export function ConfigControlCard({
   reloadLabel?: string;
   onReload?: () => Promise<void>;
   initialConfig?: ConfigData;
+  onSave?: (config: ConfigData) => Promise<void>;
 }) {
   const [config, setConfig] = useState<ConfigData | null>(initialConfig || null);
   const [message, setMessage] = useState(status);
@@ -55,13 +73,16 @@ export function ConfigControlCard({
   }
 
   async function save() {
-    if (!configPath || !config) return;
+    if (!config) return;
     setBusy(true);
     try {
-      await apiPut(`/api/config/${configPath}`, { data: config });
-      await apiPost("/api/config/reload");
+      if (onSave) {
+        await onSave(config);
+      } else if (configPath) {
+        await apiPut(`/api/config/${configPath}`, { data: config, reload: true });
+      }
       await onReload?.();
-      setMessage(`Saved ${configPath}`);
+      setMessage(`Saved ${configPath || title}`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : String(error));
     } finally {
@@ -85,12 +106,12 @@ export function ConfigControlCard({
           <label key={field.key} className="block">
             <span className="text-xs font-black uppercase text-[#9aa3af]">{field.label}</span>
             {field.kind === "boolean" ? (
-              <div className="mt-1"><ToggleField checked={Boolean(editable[field.key])} onChange={(value) => setConfig({ ...editable, [field.key]: value })} /></div>
+              <div className="mt-1"><ToggleField checked={Boolean(readPath(editable, field.key))} onChange={(value) => setConfig(writePath(editable, field.key, value))} /></div>
             ) : (
               <input
                 type={field.kind === "number" ? "number" : "text"}
-                value={editable[field.key] ?? ""}
-                onChange={(event) => setConfig({ ...editable, [field.key]: field.kind === "number" ? Number(event.target.value) : event.target.value })}
+                value={readPath(editable, field.key) ?? ""}
+                onChange={(event) => setConfig(writePath(editable, field.key, field.kind === "number" ? Number(event.target.value) : event.target.value))}
                 className="mt-1 h-10 w-full rounded-full border border-[#e4e9f0] bg-[#f6f8fb] px-3 text-sm font-bold text-[#30343b] outline-none focus:border-[#2D8CFF]"
               />
             )}
@@ -104,7 +125,7 @@ export function ConfigControlCard({
             <RefreshCw size={14} />
             Load
           </button>
-          <button onClick={save} disabled={!configPath || busy || !config} className="inline-flex h-9 items-center gap-1 rounded-full bg-[#2D8CFF] px-3 text-xs font-black text-white disabled:opacity-50">
+          <button onClick={save} disabled={busy || !config || (!configPath && !onSave)} className="inline-flex h-9 items-center gap-1 rounded-full bg-[#2D8CFF] px-3 text-xs font-black text-white disabled:opacity-50">
             <Save size={14} />
             Save
           </button>

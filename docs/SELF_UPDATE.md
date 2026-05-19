@@ -11,8 +11,8 @@ PiePro uses a two-body self-update model:
 2. Create candidate copy.
 3. Apply patch to candidate.
 4. Validate candidate config.
-5. Run candidate tests.
-6. Start candidate placeholder.
+5. Run candidate tests with `pytest` when the candidate contains `backend/tests` or `tests`; otherwise fall back to candidate config validation.
+6. Start candidate local health simulation.
 7. Run candidate health check.
 8. Promote only after tests and health pass.
 9. Roll back or destroy failed candidates.
@@ -37,4 +37,4 @@ PiePro uses a two-body self-update model:
 - Do not delete the promoted candidate.
 - Do not log secrets.
 - Keep rollback data until the replacement is verified.
-
+- Treat startup and promotion as a local simulation until a real supervisor owns process launch, traffic switching, and rollback.

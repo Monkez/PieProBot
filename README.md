@@ -75,6 +75,12 @@ Runtime files:
 - Frontend log: `logs/frontend.cli.log`
 - Windows autostart script: `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\PieProAutostart.vbs`
 
+Security default:
+
+- PiePro is designed for trusted localhost operation by default.
+- Set `ADMIN_API_KEY` before exposing the backend beyond localhost. When set, `/api/*`, `/ready`, `/metrics`, and `/logs` require `x-api-key`.
+- Set `NEXT_PUBLIC_ADMIN_API_KEY` for the frontend, or store the key in browser local storage as `piepro_api_key`.
+
 ## Architecture
 
 - **Orchestrator**: accepts user messages, creates task records, plans work, spawns subagents, collects results, and stays non-blocking.
@@ -82,7 +88,8 @@ Runtime files:
 - **Subagents**: temporary scoped workers with lifecycle, heartbeat, permissions, allowed tools/toolsets, budget fields, logs, and result/error records.
 - **Persistence**: SQLite state store under `runtime/piepro.sqlite3` for tasks, subagents, messages, tool calls, schedules, checkpoints, and local memory, with FTS search.
 - **Tools**: YAML-configured registry with schema, timeout, permission, audit level, built-in handlers, and named toolsets from `config/toolsets.yaml`.
-- **Providers**: provider router loaded from `config/providers/*.yaml`; local mock provider is enabled by default. Custom OpenAI-compatible providers can be configured with `provider_type: custom` and `base_url`.
+- **Security**: optional admin API key for control-plane routes, server-side role-derived tool permissions, and schema-aware config validation.
+- **Providers**: provider router loaded from `config/providers/*.yaml`; local mock provider is enabled by default. Custom OpenAI-compatible providers can be configured with `provider_type: custom` and `base_url`, plus `fast`, `normal`, and `power` model profiles.
 - **Channels**: channel manager loaded from `config/channels/*.yaml`; Telegram is available through `TELEGRAM_BOT_TOKEN` and optional `default_chat_id`.
 - **Memory**: local memory manager with optional TencentDB Agent Memory external backend.
 - **Skills**: class-level procedural memory under `skills/<name>/SKILL.md`, with references/templates/scripts support and `skills.*` tools.
@@ -141,6 +148,10 @@ enabled: true
 api_key_env: CUSTOM_PROVIDER_API_KEY
 base_url: http://127.0.0.1:8080/v1
 default_model: custom-model
+model_profiles:
+  fast: cheap-or-low-latency-model
+  normal: balanced-model
+  power: strongest-model
 ```
 
 Telegram channel config:

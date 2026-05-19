@@ -80,8 +80,18 @@ class BaseSubagent:
             )
             return await loop.run(self.record)
         goal = str(self.record.context.get("goal", ""))
-        provider_response = await self.provider_router.chat([{"role": "user", "content": goal}])
+        provider_response = await self.provider_router.chat([{"role": "user", "content": goal}], route=self._model_route())
         return provider_response.content
+
+    def _model_route(self) -> str:
+        explicit = str(self.record.context.get("model_route") or "").lower()
+        if explicit in {"fast", "normal", "power"}:
+            return explicit
+        if self.record.type in {"CodingAgent", "DeploymentAgent"}:
+            return "power"
+        if self.record.type in {"TestAgent", "MemoryAgent"}:
+            return "fast"
+        return "normal"
 
 
 class ResearchAgent(BaseSubagent):

@@ -3,4 +3,7 @@ name: anthropic
 enabled: false
 api_key_env: ANTHROPIC_API_KEY
 default_model: claude-3-7-sonnet-latest
-
+model_profiles:
+  fast: claude-3-5-haiku-latest
+  normal: claude-3-7-sonnet-latest
+  power: claude-3-7-sonnet-latest

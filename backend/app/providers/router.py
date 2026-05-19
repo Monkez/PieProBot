@@ -7,7 +7,6 @@ import yaml
 from app.providers.base import BaseLLMProvider, ProviderResponse
 from app.providers.local_provider import LocalProvider
 from app.providers.openai_compatible_provider import OpenAICompatibleProvider
-from app.providers.openai_provider import OpenAIProvider
 
 
 class ProviderRouter:
@@ -33,15 +32,23 @@ class ProviderRouter:
                     "enabled": enabled,
                     "api_key_env": data.get("api_key_env"),
                     "default_model": data.get("default_model"),
+                    "model_profiles": cls._model_profiles(data),
                     "base_url": data.get("base_url"),
                 }
             )
             if not enabled:
                 continue
-            if name == "local":
+            if provider_type == "local" or name == "local":
                 providers.append(LocalProvider())
-            elif name == "openai":
-                providers.append(OpenAIProvider())
+            elif provider_type == "openai" or name == "openai":
+                providers.append(
+                    OpenAICompatibleProvider(
+                        name=name,
+                        base_url=str(data.get("base_url", "https://api.openai.com/v1")),
+                        api_key_env=str(data.get("api_key_env", "OPENAI_API_KEY")),
+                        default_model=str(data.get("default_model", "gpt-4.1-mini")),
+                    )
+                )
             elif provider_type in {"openai_compatible", "custom"} or name in {"openai_compatible", "custom"}:
                 providers.append(
                     OpenAICompatibleProvider(
@@ -64,17 +71,17 @@ class ProviderRouter:
         last_error: Exception | None = None
         for provider in self.providers:
             try:
-                response = await provider.chat(messages)
+                response = await provider.chat(messages, self._model_for(provider.name, route))
                 self.cost_total += response.cost_estimate
                 return response
             except Exception as exc:
                 last_error = exc
         raise RuntimeError(f"All providers failed: {last_error}")
 
-    async def chat_with_provider(self, name: str, messages: list[dict[str, str]]) -> ProviderResponse:
+    async def chat_with_provider(self, name: str, messages: list[dict[str, str]], route: str = "default") -> ProviderResponse:
         for provider in self.providers:
             if provider.name == name:
-                response = await provider.chat(messages)
+                response = await provider.chat(messages, self._model_for(name, route))
                 self.cost_total += response.cost_estimate
                 return response
         raise ValueError(f"Provider is not active: {name}")
@@ -92,3 +99,29 @@ class ProviderRouter:
                 }
             )
         return status
+
+    def _model_for(self, provider_name: str, route: str) -> str | None:
+        normalized = "normal" if route in {"default", ""} else route
+        for item in self.configured:
+            if item.get("name") != provider_name:
+                continue
+            profiles = item.get("model_profiles")
+            if isinstance(profiles, dict):
+                model = profiles.get(normalized) or profiles.get("normal")
+                if model:
+                    return str(model)
+            default_model = item.get("default_model")
+            return str(default_model) if default_model else None
+        return None
+
+    @staticmethod
+    def _model_profiles(data: dict[str, object]) -> dict[str, str]:
+        raw = data.get("model_profiles")
+        profiles = raw if isinstance(raw, dict) else {}
+        default_model = data.get("default_model")
+        normal = profiles.get("normal") or default_model
+        return {
+            "fast": str(profiles.get("fast") or normal or ""),
+            "normal": str(normal or ""),
+            "power": str(profiles.get("power") or normal or ""),
+        }

@@ -4,8 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, RotateCcw, RefreshCw, Save } from "lucide-react";
 import { apiGet, apiPost, apiPut } from "@/lib/api";
 
-type ValidationResult = { ok: boolean; errors?: string[]; path?: string };
-
 export function ConfigEditor({ files }: { files: string[] }) {
   const [selected, setSelected] = useState(files[0] || "");
   const [content, setContent] = useState("{}");
@@ -33,9 +31,8 @@ export function ConfigEditor({ files }: { files: string[] }) {
     setBusy(true);
     try {
       const parsed = JSON.parse(content);
-      await apiPut(`/api/config/${selected}`, { data: parsed });
-      const validation = await apiPost<ValidationResult>("/api/config/validate", { path: selected });
-      setStatus(validation.ok ? `Saved and validated ${selected}` : `Saved, validation failed: ${(validation.errors || []).join("; ")}`);
+      await apiPut(`/api/config/${selected}`, { data: parsed, reload: true });
+      setStatus(`Saved and reloaded ${selected}`);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : String(error));
     } finally {
@@ -46,7 +43,7 @@ export function ConfigEditor({ files }: { files: string[] }) {
   async function reload() {
     setBusy(true);
     try {
-      const result = await apiPost<{ ok: boolean; reload_count?: number }>("/api/config/reload");
+      const result = await apiPost<{ ok: boolean; reload_count?: number }>("/api/config/reload", { scope: selected || "all" });
       setStatus(result.ok ? `Config reloaded (${result.reload_count ?? 0})` : "Reload failed. Check validation output.");
     } catch (error) {
       setStatus(error instanceof Error ? error.message : String(error));

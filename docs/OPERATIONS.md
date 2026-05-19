@@ -63,6 +63,15 @@ piepro autostart disable
 
 Open `http://127.0.0.1:3000/config` to edit config files. The editor loads YAML files as JSON, validates writes on save, rolls back invalid writes automatically, supports explicit rollback of the last saved version, and can hot reload tools, providers, and channels.
 
+For trusted localhost development, the backend allows admin control-plane access when `ADMIN_API_KEY` is not set. Before exposing PiePro outside the local machine, set an API key:
+
+```powershell
+$env:ADMIN_API_KEY = "<local-admin-key>"
+$env:NEXT_PUBLIC_ADMIN_API_KEY = "<local-admin-key>"
+```
+
+The backend protects `/api/*`, `/ready`, `/metrics`, and `/logs` with `x-api-key` when `ADMIN_API_KEY` is set. The frontend sends the key from `NEXT_PUBLIC_ADMIN_API_KEY`, or from browser local storage key `piepro_api_key` if you prefer not to bake it into the frontend environment.
+
 The Tools, Providers, and Channels pages expose direct controls for common fields such as enabled state, model, base URL, timeout, token env name, and Telegram chat ID. Saving from these pages writes back to the corresponding file under `config/`.
 
 Operational pages now perform the common runtime actions directly:
@@ -159,9 +168,21 @@ enabled: true
 api_key_env: CUSTOM_PROVIDER_API_KEY
 base_url: http://127.0.0.1:8080/v1
 default_model: custom-model
+model_profiles:
+  fast: cheap-or-low-latency-model
+  normal: balanced-model
+  power: strongest-model
 ```
 
 Set `$env:CUSTOM_PROVIDER_API_KEY` before starting PiePro if the provider requires a bearer token.
+
+The Providers page can create new provider YAML files under `config/providers/`. PiePro routes Bot calls through three model profiles:
+
+- `fast`: low-latency/background utility work.
+- `normal`: default chat and research work.
+- `power`: coding, deployment, and high-complexity subagents.
+
+If a provider key is entered directly into the Providers page instead of an environment variable name, PiePro stores it under `runtime/provider_secrets.json` and loads it on startup. That file is ignored by git, but it is plaintext local storage; prefer environment variables or an OS secret manager for shared machines.
 
 ## Telegram Channel
 

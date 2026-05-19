@@ -45,10 +45,11 @@ class AgentLoop:
             {"role": "user", "content": goal},
         ]
         final_content = ""
+        model_route = self._model_route(record)
 
         for iteration in range(min(record.tool_call_budget, self.max_iterations)):
             record.heartbeat(f"agent loop {iteration + 1}")
-            response = await self.provider_router.chat(messages)
+            response = await self.provider_router.chat(messages, route=model_route)
             final_content = response.content
             tool_calls = self._parse_tool_calls(response.content)
             if not tool_calls:
@@ -74,6 +75,17 @@ class AgentLoop:
                 messages.append({"role": "tool", "content": json.dumps({"tool": name, "result": result}, ensure_ascii=False)})
             messages = self.context_engine.compact(messages)
         return final_content
+
+    @staticmethod
+    def _model_route(record: SubagentRecord) -> str:
+        explicit = str(record.context.get("model_route") or "").lower()
+        if explicit in {"fast", "normal", "power"}:
+            return explicit
+        if record.type in {"CodingAgent", "DeploymentAgent"}:
+            return "power"
+        if record.type in {"TestAgent", "MemoryAgent"}:
+            return "fast"
+        return "normal"
 
     @staticmethod
     def _parse_tool_calls(content: str) -> list[dict[str, Any]]:

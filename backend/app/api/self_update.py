@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
+
+from app.security.permissions import role_permissions
 
 router = APIRouter(prefix="/api/self-update", tags=["self-update"])
 
@@ -60,6 +62,7 @@ async def healthcheck_candidate(request: Request, payload: CandidateIdRequest):
 
 @router.post("/promote")
 async def promote_candidate(request: Request, payload: CandidateIdRequest):
+    _require_promoter(request)
     return await request.app.state.self_update.promote_candidate(payload.candidate_id)
 
 
@@ -86,3 +89,9 @@ async def update_status(request: Request):
 @router.get("/history")
 async def update_history(request: Request):
     return request.app.state.self_update.history
+
+
+def _require_promoter(request: Request) -> None:
+    role = role_permissions(getattr(request.state, "role", "viewer"))
+    if not role.can_promote:
+        raise HTTPException(status_code=403, detail="Promotion is not allowed for this role")

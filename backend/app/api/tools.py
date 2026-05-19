@@ -3,12 +3,13 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 
+from app.security.permissions import tool_permissions_for_role
+
 router = APIRouter(prefix="/api/tools", tags=["tools"])
 
 
 class ToolExecuteRequest(BaseModel):
     payload: dict[str, object] = {}
-    permissions: dict[str, bool] = {}
 
 
 @router.get("")
@@ -27,7 +28,8 @@ async def get_tool(request: Request, tool_name: str):
 
 @router.post("/{tool_name:path}/execute")
 async def execute_tool(request: Request, tool_name: str, payload: ToolExecuteRequest):
-    result = await request.app.state.tools.execute(tool_name, dict(payload.payload), payload.permissions)
+    permissions = tool_permissions_for_role(getattr(request.state, "role", "viewer"))
+    result = await request.app.state.tools.execute(tool_name, dict(payload.payload), permissions)
     return result.model_dump()
 
 

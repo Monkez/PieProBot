@@ -12,3 +12,4 @@ build/
 *.log
 *.egg-info/
 /logs/
+references/

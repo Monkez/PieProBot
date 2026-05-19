@@ -3,6 +3,8 @@ from __future__ import annotations
 import asyncio
 import json
 import shutil
+import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -55,14 +57,45 @@ class SelfUpdateManager:
     async def run_candidate_tests(self, candidate_id: str) -> dict[str, object]:
         record = self.candidates[candidate_id]
         fail_marker = record.path / "FAIL_TESTS"
-        record.test_passed = not fail_marker.exists()
+        if fail_marker.exists():
+            record.test_passed = False
+            record.status = "test_failed"
+            return {"ok": False, "candidate_id": candidate_id, "error": "FAIL_TESTS marker present"}
+
+        command, cwd = self._candidate_test_command(record)
+        if command is None:
+            record.test_passed = await self._candidate_has_valid_config(record)
+            record.status = "tested" if record.test_passed else "test_failed"
+            return {"ok": record.test_passed, "candidate_id": candidate_id, "skipped": "no test suite found"}
+
+        result = await asyncio.to_thread(
+            subprocess.run,
+            command,
+            cwd=str(cwd),
+            capture_output=True,
+            text=True,
+            timeout=180,
+            check=False,
+        )
+        record.test_passed = result.returncode == 0
         record.status = "tested" if record.test_passed else "test_failed"
-        return {"ok": record.test_passed, "candidate_id": candidate_id}
+        return {
+            "ok": record.test_passed,
+            "candidate_id": candidate_id,
+            "command": command,
+            "returncode": result.returncode,
+            "stdout": result.stdout[-20_000:],
+            "stderr": result.stderr[-20_000:],
+        }
 
     async def start_candidate(self, candidate_id: str) -> dict[str, object]:
         record = self.candidates[candidate_id]
+        config_ok = await self.validate_candidate_config(candidate_id)
+        if not config_ok["ok"]:
+            record.status = "start_failed"
+            return {"ok": False, "candidate_id": candidate_id, "error": "candidate config validation failed"}
         record.status = "started"
-        return {"ok": True, "candidate_id": candidate_id, "port": 18080}
+        return {"ok": True, "candidate_id": candidate_id, "port": 18080, "mode": "local-health-simulation"}
 
     async def run_candidate_healthcheck(self, candidate_id: str) -> dict[str, object]:
         record = self.candidates[candidate_id]
@@ -115,3 +148,15 @@ class SelfUpdateManager:
             "history": self.history,
         }
 
+    def _candidate_test_command(self, record: CandidateRecord) -> tuple[list[str], Path] | tuple[None, None]:
+        backend_tests = record.path / "backend" / "tests"
+        if backend_tests.exists():
+            return [sys.executable, "-m", "pytest"], record.path / "backend"
+        root_tests = record.path / "tests"
+        if root_tests.exists():
+            return [sys.executable, "-m", "pytest"], record.path
+        return None, None
+
+    async def _candidate_has_valid_config(self, record: CandidateRecord) -> bool:
+        result = await self.validate_candidate_config(record.id)
+        return bool(result["ok"])
